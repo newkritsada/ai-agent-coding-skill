@@ -20,7 +20,8 @@ Defines **plan file structure only**. Stack rules live in the repo's `AGENTS.md`
 
 - All 8 headings always render, in order. Empty ones get `None` — never delete a heading.
 - §7 maps 1:1 to frontmatter `todos`. No orphan todos, no unlisted steps.
-- **Reading a plan: skip the fenced mermaid block, read the prose flow.** The diagram is human-only and carries nothing the prose omits.
+- **Reading a plan: skip the fenced mermaid blocks, read the prose flow.** Diagrams are human-only and carry nothing the prose omits.
+- §6 shows **Before** (current flow) and **After** (planned flow) so the change is visible as a diff. Keep node IDs and layout identical where the flow is unchanged; mark added/modified nodes with `:::changed` (dashed). Greenfield work: Before is `None`, only After renders.
 - Compact: tables, bullets, paths. Concrete names — no "etc." or "similar to existing". Complex plans get more *rows*, not longer *sentences*.
 
 ## Template
@@ -57,14 +58,27 @@ Not implementation steps — those are §7.}
 
 ## 6. How it works
 
-<!-- flowchart below is human-only — skip when reading this plan -->
+<!-- flowcharts below are human-only — skip when reading this plan -->
+### Before (current flow)
+{`None` for greenfield work — no diagram then.}
 ```mermaid
 flowchart TD
   subgraph {file or responsibility}
-    A[Start] --> B{condition?}
-    B -->|no| X[Exit]
-    B -->|yes| C[Step]
+    A[Start] --> B[Current step]:::changed
+    B --> X[Exit]
   end
+  classDef changed stroke-dasharray: 5 5
+```
+
+### After (planned flow)
+```mermaid
+flowchart TD
+  subgraph {file or responsibility}
+    A[Start] --> B{condition?}:::changed
+    B -->|no| X[Exit]
+    B -->|yes| C[Step]:::changed
+  end
+  classDef changed stroke-dasharray: 5 5
 ```
 
 **Prose flow** (source of truth):

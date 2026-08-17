@@ -80,6 +80,7 @@ Use this order. Omit a section only when it truly does not apply.
 ### How the flow works
 
 - **Mermaid `flowchart TD`** when the work has multiple steps, branches, or async paths.
+- **Two diagrams when changing existing behavior: “Before (current flow)” then “After (planned flow)”** — so the reader sees the change as a diff. Keep node IDs and layout identical where the flow is unchanged; mark added/modified nodes with `:::changed` (dashed). Greenfield work: skip Before, render only After.
 - Use `subgraph` per file, layer, or responsibility.
 - Under the diagram, `###` subsections for non-obvious rules (retries, completion, naming, idempotency).
 - Describe **what runs, in what order, under what conditions** — not line-by-line implementation.

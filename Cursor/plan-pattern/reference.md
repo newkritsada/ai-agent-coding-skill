@@ -55,23 +55,41 @@ isProject: false
 
 ## How the flow works
 
+### Before (current flow)
+
+{Skip this subsection for greenfield work — nothing exists yet.}
+
 ```mermaid
 flowchart TD
   subgraph entry [{trigger or entry point}]
-    A[Start] --> B{condition?}
+    A[Start] --> B[Current step]:::changed
+    B --> stop[Exit]
+  end
+  classDef changed stroke-dasharray: 5 5
+```
+
+### After (planned flow)
+
+```mermaid
+flowchart TD
+  subgraph entry [{trigger or entry point}]
+    A[Start] --> B{condition?}:::changed
     B -->|no| stop[Exit]
-    B -->|yes| C[Next step]
+    B -->|yes| C[Next step]:::changed
   end
 
   subgraph core [{main module or orchestrator}]
-    C --> D[Step 1]
-    D --> E[Step 2]
+    C --> D[Step 1]:::changed
+    D --> E[Step 2]:::changed
   end
 
   subgraph side [{external effect or persistence}]
-    E --> F[Persist / notify / emit]
+    E --> F[Persist / notify / emit]:::changed
   end
+  classDef changed stroke-dasharray: 5 5
 ```
+
+Keep node IDs and layout identical between Before and After where the flow is unchanged; tag added/modified nodes with `:::changed`.
 
 ### {Rule name — e.g. completion, retry, naming}
 
