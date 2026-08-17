@@ -1,34 +1,36 @@
 ---
 name: plan-pattern
-description: Plan structure and pattern for .plan.md files (Plan mode, /plan, or user asks to plan). Use when writing plans — frontmatter shape, required sections, section order, todos. Runs a grilling interview first to sharpen decisions. Project-agnostic; adapt content to the repo.
+description: Plan structure for .plan.md files (Plan mode, /plan, or user asks to plan/design/break down work). Defines frontmatter, 8 fixed sections, and todos. Always runs a mandatory `grilling` interview before filling the plan. Project-agnostic.
 ---
 
 # Plan pattern
 
-## When to use
+Defines **plan file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAUDE.md`.
 
-Plan mode, `/plan`, or the user asks to plan / design / break down work.
+## Workflow — always, no exceptions
 
-This skill defines **plan file structure only**. Read the repo's `AGENTS.md`, `CLAUDE.md`, or local conventions separately for stack-specific rules.
+1. **Write** the plan file with only `## 1. Understanding` (bulleted restatement of the request) and an empty `## 8. Open questions`.
+2. **Invoke the `grilling` skill.** One question at a time, each with a recommended answer. Explore the codebase instead of asking whatever the code can answer.
+   - Answered → fold into its section (prereqs → §2, file effects → §3–§5, behavior/edge cases → §6, sequencing → §7).
+   - User can't decide, or asks a question back → park the question **plus the context that blocked it** in §8; continue other branches.
+   - Later resolved → delete the §8 entry. §8 is a live queue, not a log.
+3. **Fill** §2–§7. If §8 is still non-empty, grill again on only those items.
 
-## Sharpen the plan with grilling
+## Rules
 
-A plan is only as good as the decisions behind it. Before writing the plan file, run the `grilling` skill: interview the user relentlessly about the design — one question at a time, with a recommended answer for each — walking down each branch of the design tree until you reach shared understanding. If a question can be answered by exploring the codebase, explore instead of asking.
+- All 8 headings always render, in order. Empty ones get `None` — never delete a heading.
+- §7 maps 1:1 to frontmatter `todos`. No orphan todos, no unlisted steps.
+- **Reading a plan: skip the fenced mermaid block, read the prose flow.** The diagram is human-only and carries nothing the prose omits.
+- Compact: tables, bullets, paths. Concrete names — no "etc." or "similar to existing". Complex plans get more *rows*, not longer *sentences*.
 
-Fold each resolved answer into the matching section: prerequisites → **What is needed**, behavior and edge cases → **How the flow works**, sequencing → **Implementation order**. After drafting, if open questions or unresolved trade-offs remain, grill again on just those points before finalizing.
+## Template
 
-Skip the grilling pass only when the design is already fully specified, or the user explicitly asks for a quick plan.
-
-## Plan file format
-
-Plan files use **YAML frontmatter** + **markdown body**.
-
-```yaml
+````markdown
 ---
 name: {Plan title}
-overview: {One sentence — what, scope, outcome}
+overview: {One sentence — what, scope, outcome. Never repeated in the body.}
 todos:
-  - id: {kebab-id}
+  - id: {kebab-id}          # one per §7 step
     content: {actionable one-liner}
     status: pending
 isProject: false
@@ -36,77 +38,48 @@ isProject: false
 
 # {Plan title}
 
-## What is needed
-...
+## 1. Understanding
+{Bulleted restatement of what the user wants, so a misread is caught early.
+Note any assumption made, and any request that couldn't be honored as stated.}
 
-## Files to create
-...
+## 2. Requirements
+{Prereqs this plan depends on: deps, data, config, access. Names, paths, types.
+Not implementation steps — those are §7.}
 
-## How the flow works
-...
+## 3. Files to create
+{ASCII tree of new paths, grouped logically. Mark the entry/orchestrator file.}
 
-## Implementation order
-...
+## 4. Files to change
+- `{path}` — {what changes, one line}
+
+## 5. Files to remove
+- `{path}` — {why}
+
+## 6. How it works
+
+<!-- flowchart below is human-only — skip when reading this plan -->
+```mermaid
+flowchart TD
+  subgraph {file or responsibility}
+    A[Start] --> B{condition?}
+    B -->|no| X[Exit]
+    B -->|yes| C[Step]
+  end
 ```
 
-**Frontmatter rules**
+**Prose flow** (source of truth):
+1. {What runs, in what order, under what condition — not line-by-line code.}
 
-- `overview` — single sentence; do not repeat as a body section.
-- `todos` — one entry per major step in **Implementation order**; `id` = kebab-case; `status: pending` for new plans.
+### {Non-obvious rule — retries, idempotency, naming, completion criteria}
+{Only when such a rule exists.}
 
-## Required body sections
+## 7. Steps
+1. {Foundation first, then dependents. Dependency-safe order.}
 
-Use this order. Omit a section only when it truly does not apply.
+## 8. Open questions
+| Question | Context / blocker |
+|---|---|
+| {parked question} | {why it couldn't be answered} |
 
-| # | Section | Purpose |
-|---|---------|---------|
-| 1 | **What is needed** | Prerequisites this plan depends on (deps, data, config, access) |
-| 2 | **Files to create** | New paths + existing paths to change |
-| 3 | **How the flow works** | Diagram + rules for behavior and edge cases |
-| 4 | **Implementation order** | Numbered, dependency-safe build sequence |
-
-**Optional body sections** — after **How the flow works**, before **Implementation order**, only when relevant:
-
-- Named constants / shared definitions
-- Completion criteria (when is the work done?)
-- Error, retry, or state rules
-
-## Section guidelines
-
-### What is needed
-
-- Use `###` subsections for each prerequisite type (only what applies).
-- Be concrete: names, paths, types — not "add necessary fields".
-- Do not list implementation steps here; those belong in **Implementation order**.
-
-### Files to create
-
-- ASCII tree for **new** files, grouped logically.
-- **Also extend / modify** — bullet list: path + one line on what changes.
-- Call out the main entry/orchestrator file when the plan has multi-step logic.
-
-### How the flow works
-
-- **Mermaid `flowchart TD`** when the work has multiple steps, branches, or async paths.
-- Use `subgraph` per file, layer, or responsibility.
-- Under the diagram, `###` subsections for non-obvious rules (retries, completion, naming, idempotency).
-- Describe **what runs, in what order, under what conditions** — not line-by-line implementation.
-
-### Implementation order
-
-- Numbered list, dependency-safe (foundation before dependents).
-- Each item should map to one or more frontmatter `todos`.
-
-## Quality bar
-
-| Do | Don't |
-|----|-------|
-| One overview sentence in frontmatter | Vague "implement feature X" |
-| Concrete paths and identifiers | "etc." / "similar to existing" |
-| Mermaid for multi-step flows | Prose-only flow when a diagram would clarify |
-| Todos match implementation order | Orphan todos with no section backing |
-| Optional sections only when needed | Boilerplate sections on every plan |
-
-## Template
-
-Copy structure from [reference.md](reference.md).
+{`None` once empty.}
+````
