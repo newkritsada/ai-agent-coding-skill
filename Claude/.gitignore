@@ -1,0 +1,6 @@
+# Local sync tooling -- not part of the skills themselves
+sync-skills.sh
+
+# macOS / Windows cruft
+.DS_Store
+Thumbs.db
