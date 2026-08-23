@@ -1,5 +1,6 @@
 # Local sync tooling -- not part of the skills themselves
 sync-skills.sh
+sync-skills.cmd
 
 # macOS / Windows cruft
 .DS_Store
