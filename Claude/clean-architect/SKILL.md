@@ -1,156 +1,110 @@
 ---
 name: clean-architect
-description: Module-First Clean Architecture rules for the pluton-monorepo `apps/api` backend (NestJS 11, TypeORM, Oracle 19c, Zod). Use whenever writing, reviewing, refactoring, planning, or debugging code in apps/api — controllers, use cases, domain entities, value objects, ports, adapters, repositories, query services, mappers, DTOs, modules, errors, migrations, or tests — even if the user doesn't mention "architecture". Also use when deciding where new code belongs or whether an import is allowed.
+description: Clean Architecture as a portable concept — layering, the dependency rule, ports & adapters, where code belongs. Use when writing, reviewing, refactoring, or planning backend code (NestJS, Go, Elysia, or any stack), or when deciding where new code belongs or whether a dependency/import is allowed. Adapt to each repo's existing structure; apply as principles when the repo can't follow the full shape.
 ---
 
-# Clean Architect — apps/api
+# Clean Architect
 
-Every module in `src/modules/` follows four layers with one governing rule:
+One governing rule:
 
 > **The Dependency Rule: dependencies only point inward. Inner layers know nothing about outer layers.**
 
-Control flows outside → inside → outside; dependencies point only inward. Those are two different arrows — confusing them is the most common architectural mistake.
+Control flows outside → inside → outside; dependencies point only inward. Two different arrows — confusing them is the most common architectural mistake. Infrastructure is an *outer* layer that depends *inward*: the domain owns the port (interface/contract); infrastructure supplies the implementation. That inversion is what makes the stack swappable.
 
 ```text
-presentation/ → application/ → domain/ ← infrastructure/
+presentation → application → domain ← infrastructure
 ```
 
-Infrastructure is an *outer* layer that depends *inward*: the domain owns the port (`BadgeRepositoryPort`); infrastructure supplies the implementation.
+| Layer | Job | Never |
+|---|---|---|
+| 💎 Domain | Be right about the business, forever. Entities, value objects, domain services, ports, domain errors. | Import frameworks, ORM, HTTP, validation libs, or any outer layer |
+| ⚙️ Application | Orchestrate one workflow per use case: sequence, transactions, workflow errors. | Duplicate business rules; import presentation; touch the ORM (except read/query services and adapters) |
+| 🔧 Infrastructure | Make the ports real: repositories, mappers, ORM entities, external clients. | Make business or workflow decisions; return DTOs/rows from a command repository |
+| 🌐 Presentation | Translate transport ↔ use case: routes, validation, auth guards. | Hold business rules; call repositories/query services directly; catch domain errors (translate at the edge) |
 
-For the full handbook (complete examples, sequence diagrams, rationale), read [references/clean-architecture.md](references/clean-architecture.md). In-repo companions: `apps/api/AGENTS.md` (terse rules), `docs/guideline/api-architecture.md` (judgment calls), `docs/guideline/ports-and-adapters.md` (port mechanics).
+## Adapting to the repo (this skill is a concept, not a template)
+
+Every repo differs — NestJS modules, Go packages, Elysia plugins, flat services. **Match the repo's existing structure and idiom; apply the closest workable form of each principle.** Priority when full application isn't possible:
+
+1. Dependency rule (business logic imports no framework/IO) — never compromise
+2. Deciding vs doing separated (domain decides, infrastructure does)
+3. Depend on abstractions at boundaries (interfaces/ports), bound in one composition place
+4. One workflow = one use case / handler function
+5. Folder shape, naming suffixes, ceremony — fully negotiable; follow the repo
+
+Stack mapping examples: NestJS → abstract-class ports as DI tokens, module file wires bindings. Go → interfaces defined in the consumer/domain package, wiring in `main`/`wire`. Elysia/functional → plain functions + dependency parameters or a small container; "entity" may be a validated constructor + pure functions. If the repo has no layers at all, still separate: pure business functions ← orchestrating handler ← IO at the edges.
 
 ## Where does this code belong?
 
 Ask what decision the code is making:
 
-| The code decides… | It belongs in |
+| The code decides… | Belongs in |
 |---|---|
-| Whether a business state is legal | Entity / VO / domain service |
-| Whether a transition is allowed | Value object (transition map) |
+| Whether a business state is legal | Entity / value object / domain service |
+| Whether a transition is allowed | Value object (explicit transition map, not `if` chains) |
 | What order things happen in | Use case |
 | Whether the caller may do this | Use case (workflow) + guard (transport) |
-| That absence is an error | Use case (query returns `null` → use case throws) |
+| That absence is an error | Use case (queries return `null`/empty; use case throws) |
 | How data is stored or fetched | Repository / query service |
-| How a row becomes an object | Mapper |
-| How an error becomes a status code | Exception filter |
-| What another module is allowed to see | Port + adapter |
+| How a row becomes an object | Mapper (pure) |
+| How an error becomes a status code | Filter/middleware at the edge |
+| What another module may see | Port + adapter |
 
-## Which abstraction?
+## Key rules per layer
 
-```text
-Does the call cross a module boundary?
-├─ Yes → domain/port/<name>.port.ts + application/adapter/  → returns a View
-└─ No  ├─ own aggregate?  → domain/port/<name>-repository.port.ts → entity | void
-       └─ a projection?   → application/query-port/ + query-service → Projection
-```
+**Domain** — pure language code, zero frameworks. Entities carry behavior + invariants, validated on every path in (private/controlled construction). Two ways in: `create()` mints new identity (ID generated in the domain), `fromPersistence()`/rehydrate rebuilds trusted data without re-minting identity. Methods named in business language (`hasEarnedBadge()`, not `checkRecordExists()`). Errors name the exact failed condition (`BadgeNameRequiredError`, not `InvalidBadgeError`). Audit fields (`createdAt`/`updatedAt`) belong to persistence, not the domain.
 
-Read-output suffixes are load-bearing: `Projection` (internal read model), `View` (crosses module boundary), `Result` (wrapper: pagination/counts), `Row` (raw DB row, never leaves the file).
+**Application** — one use case, one workflow, one public entry method. Inject the *narrowest* contract that does the job (a single query port, not a whole service). Transactions wrap only multi-write workflows; a single save needs none. Workflow failures → application errors; domain errors propagate untouched. Neither error type knows HTTP — a `category`/`code` on the error lets the edge map status. **Command/query split:** command side returns domain entities or `void`; read side (query services) returns projections shaped for the response — a use case decides whether absence is an error.
 
-## Import rules (dependency-cruiser, error severity — `pnpm lint:arch`)
+**Infrastructure** — `implements` the port, never inherits behavior from it. Command repositories return domain entities, `null`, `void`, or `boolean` — never DTOs, projections, or raw rows (those are the read side's job). `save()` returns nothing — the caller already has the entity. Mappers are pure; row→domain uses the rehydrate factory, never `create()`. Transactions ambient/contextual, not threaded through signatures.
 
-Allowed:
+**Presentation** — handlers inject use cases only and stay a few lines: validate input → call one use case → return. Every transport input validated before the workflow runs. No `try/catch` for domain/application errors — one edge translator maps error category → status code.
 
-```text
-presentation/  → application/          (use cases only)
-application/   → domain/
-application/query-service/ + adapter/ → infrastructure/, typeorm   (only these two)
-infrastructure/→ domain/
-any module     → src/shared/, src/infrastructure/, another module's index.ts barrel
-same-context submodule → sibling shared/domain/, sibling query-port/, sibling ORM entity (type-only, from ORM entity files)
-```
-
-Forbidden:
-
-```text
-domain/        → @nestjs/*, typeorm, oracledb, express, zod, nestjs-zod, nestjs-pino
-domain/        → application/ | infrastructure/ | presentation/ | src/infrastructure/
-application/   → presentation/ | own infrastructure/ | typeorm   (except query-service/ and adapter/)
-module A       → module B's application/ | infrastructure/ | presentation/ | non-barrel files
-index.ts       → anything but the Nest module + domain/port/ + domain/types/
-index.ts       → any *repository*.port.ts   (never hand out write access to your aggregate)
-presentation/  → adapters, query services, repositories
-```
-
-Fix errors; never loosen rules.
-
-## Layer checklists
-
-**💎 Domain** — pure TypeScript, zero frameworks. Entities are classes with private fields and a private constructor; two factories: `create()` mints identity (UUIDv7 inside the factory), `fromPersistence()` rebuilds trusted data. `getValue()` for mappers; no public fields or setters. Invariants validated on every path in. Method names use domain language (`hasEarnedBadge()`, not `checkBadgeRecordExists()`). Errors extend `DomainError` and name the exact failed condition (`BadgeNameRequiredError`, not `InvalidBadgeError`). No `createdAt`/`updatedAt` — audit fields belong to the ORM.
-
-**⚙️ Application** — one use case, one workflow, one public `execute()`. Inject the *narrowest* contract (a single query-port, not the whole query service). `uow.run()` only for multi-write workflows; a single `save()` needs no UnitOfWork. Workflow failures throw `ApplicationError` subclasses (in `application/*.errors.ts`); `DomainError` propagates untouched. Query services return data, `null`, or `[]` — the use case decides whether absence is an error.
-
-**🔧 Infrastructure** — `implements SomePort`, never `extends`. Repositories return domain entities, `Entity[]`, `null`, `void`, or `boolean` — never DTOs, projections, or rows (those belong in query services). `save(): Promise<void>`. Use the ambient transactional manager (`txEmStorage.getStore() ?? this.repository.manager`) — no transaction parameters threaded through. ORM entity class names singular (`BadgeOrmEntity`). Mappers are pure; `toDomain` calls `fromPersistence`, never `create`.
-
-**🌐 Presentation** — controllers inject use cases only, and each method is a few lines: validate → call one use case → return the promise. Every transport input validated before the use case runs (Zod DTO, `@ParseUUIDParam`, job payloads). No `try/catch` for domain or application errors — the four exception filters translate `category` → HTTP status at the edge. OpenAPI annotations and `@Traced()` present.
-
-**📦 Module** — the module file is the only place abstractions meet implementations. Port bindings use `useExisting` (one adapter instance can satisfy several ports). Barrel exports only the Nest module + `domain/port/` (excluding `*repository*`) + `domain/types/`. Every port a consumer needs is in `exports`.
-
-## Function scope (see the `function-flow` skill)
-
-Layers place code; inside a function, apply the `function-flow` skill: the body
-reads top-to-bottom as named steps — details one level down.
-
-- A use case's `execute()` is the narrative of its workflow: each line a named step
-  (`load* / find*` → `resolve* / build*` → `plan*` (pure) → `apply* / save*` →
-  `report*`). If it needs `// section` comments, each comment is a private method
-  waiting to be extracted.
-- Separate deciding from doing: decisions are pure functions returning explicit
-  actions (`'create' | 'update' | 'unchanged'`); side effects live in one place.
-  In this codebase the split falls out of the layers — entities/VOs decide,
-  repositories do — keep the same split *within* a long method too.
-- Per-item branching goes into a named helper with guard clauses; the caller only
-  aggregates. Derive summaries from results, not counters mutated mid-loop.
-- Validate and fail fast at the top of the workflow, never deep inside the loop.
+**Composition** — exactly one place binds abstractions to implementations (module file, `main`, container setup). A module's public surface exports only its entry point + published ports/types — **never repository ports** (that hands out write access to your aggregate).
 
 ## Ports & adapters
 
-- Ports are **abstract classes** (they must survive to runtime to serve as DI tokens), declared in the provider's `domain/port/`, types in `domain/types/`, exported from the provider's `index.ts`.
-- Verb/action names, named for the fact the consumer wants: `HasEarnedBadgePort`, not `AchievementRewardRepositoryPort`. Explicit method names, never a generic `execute()`.
-- Adapters live in `application/adapter/`, may use TypeORM, and never throw `ApplicationError` — they return the fact; the consuming use case decides what it means.
-- Absorb or delegate: if the logic is also used by the provider's own controller flow, the adapter delegates to the shared use case/query service; otherwise it absorbs the logic.
-- **Ceremony budget** — don't add ports by imitation. Tier 1 (`personalize`, `learning-content`): full port discipline. Tier 2 (`users`, `user-activities`, `moderation`, `content-approvals`): ports by default, challenge single-consumer ones. Tier 3 (`uploads`, `creator-channel`, `channel-directory`): ceremony optional. External-system ports (object storage, YouTube, DVR) are always justified.
-- Same-bounded-context submodules (inside `learning-content/`) may share `shared/domain/` primitives and import each other's `application/query-port/` directly — no ports for purely internal same-context communication.
+- Port = contract owned by the **provider's domain**, named for the fact the consumer wants (`HasEarnedBadgePort`), with explicit method names — never generic `execute()`. Cross-module reads return a `View`/plain data, never a domain entity or repository.
+- Adapter = provider's implementation; it returns the fact and never decides what the fact means — the consuming use case does. If the logic is shared with the provider's own flow, delegate; otherwise absorb it.
+- **Ceremony budget:** don't add ports by imitation. Full port discipline where the domain is volatile or extraction is plausible; skip ceremony for stable, single-consumer, internal edges. External systems (storage, third-party APIs) always deserve a port — the problem is stable, the provider isn't.
+- Same-bounded-context submodules may share domain primitives and internal query contracts directly — no ports for code that ships together.
 
 ## Queries
 
-**Query count must not grow with row or input cardinality.** `Promise.all` over fixed independent queries (count + page) is fine; `Promise.all(items.map(…query…))` or repository calls in loops are N+1 — batch with `IN` or a join. When dismissing a `Promise.all`, say why it is bounded.
+**Query count must not grow with row or input cardinality.** `Promise.all`/goroutines over a *fixed* set of independent queries is fine; a query per mapped item or inside a loop is N+1 — batch with `IN` or a join. When dismissing one, say why it's bounded.
 
-## Errors & validation
+## Function scope → apply the `function-flow` skill
 
-- Error codes live in `packages/shared/src/errors/codes.ts` (`<FEATURE>_<REASON>` / `<feature>.<reason>`); they are a public API contract — never rename one.
-- Zod schemas are defined once in `packages/shared/src/<plural>/schemas.ts`; module DTOs re-export type + schema + `createZodDto` class.
-- **Never hand-write or edit a migration.** Change `*.orm-entity.ts`, run `migration:run`, then `NAME=<PascalCase> pnpm --filter @ols/api migration:generate`, review before running.
+Layers place code between files; inside a function, `function-flow` governs:
+
+- A use case's body is the narrative of its workflow — named steps (`load → resolve/build → plan (pure) → apply/save → report`). `// section` comments mark helpers waiting to be extracted.
+- Separate deciding from doing *within* a function too: decisions are pure and return explicit actions; side effects live in one place.
+- Per-item branching → named helper with guard clauses; caller only aggregates. Derive summaries from results, not counters mutated mid-loop.
+- Validate and fail fast at the top of the workflow, never deep inside a loop.
 
 ## Testing
 
-- Domain unit + use-case unit specs colocated (`*.spec.ts`, Vitest, fake ports — no container, no DB). Acceptance via Gherkin in `test/e2e/features/`.
-- Name use-case tests as **actor + action/condition + observable business outcome** in ubiquitous language: "an admin cannot create a badge whose image no longer exists", not "throws BadgeImageAssetNotFoundError when resolveObjectKey returns null". Only the first survives a refactor.
-- Skip low-value tests: no unit tests for query services or logic-free read use cases.
+- Domain + use-case unit tests need no DB/container — abstractions make fakes one-liners. That cheapness is the architecture's proof.
+- Name use-case tests as **actor + action/condition + observable business outcome** ("an admin cannot create a badge whose image no longer exists"), never after classes or exceptions — only the first survives a refactor.
+- Skip low-value tests: no units for query services or logic-free read paths (they only assert the mock).
 
-## Verify after every change
+## Working in a repo
 
-```sh
-pnpm --filter @ols/shared build \
-  && pnpm --filter @ols/api typecheck \
-  && pnpm --filter @ols/api lint \
-  && pnpm --filter @ols/api test \
-  && pnpm --filter @ols/api lint:arch
-```
-
-Never report an architecture violation from a search hit alone — confirm against local code, port contracts, tests, and `apps/api/AGENTS.md` first.
+- Discover the repo's conventions first (existing modules, lint/arch tooling, AGENTS/CLAUDE docs); imitate the nearest good example rather than importing this skill's folder names.
+- If the repo enforces boundaries (dependency-cruiser, arch lint, import rules): **fix errors, never loosen rules.** Run the repo's verify pipeline after every change.
+- Never report an architecture violation from a search hit alone — confirm against the actual code, contracts, and tests.
 
 ## Common mistakes
 
 | Mistake | Fix |
 |---|---|
-| Business rule written in the use case | Move to the entity or value object |
-| Repository returning a DTO or a row | Use a query service |
-| Controller injecting a query service | Inject a use case |
-| Repository port exported from the barrel | Publish a `View` port named for the fact |
-| `extends Port` | `implements Port`. Always. |
-| Adapter throwing an `ApplicationError` | Return the fact; let the use case decide |
-| A port added by imitation | Check the ceremony budget tier first |
-| `Promise.all` over a mapped list of queries | Batch with `IN` or a join |
-| Test named after a class or exception | Rename to actor + action + business outcome |
-| Long `execute()` with `// section` comments, mixed decide+do | Extract named steps per the `function-flow` skill |
-| Hand-edited migration | Regenerate from the entity diff |
+| Business rule in the use case | Move to entity / value object |
+| Command repository returning a DTO or row | Move to the read side (query service) |
+| Handler calling repository/query service directly | Inject a use case |
+| Repository port in the public surface | Publish a narrow read port named for the fact |
+| Adapter deciding a missing fact is an error | Return the fact; the use case decides |
+| Port added by imitation | Check the ceremony budget first |
+| Query per mapped item / in a loop | Batch with `IN` or a join |
+| Test named after a class or exception | Actor + action + business outcome |
+| Long workflow body with `// section` comments | Extract named steps per `function-flow` |
+| Domain importing framework "just for a type" | Define the type in the domain; map at the edge |
