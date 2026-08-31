@@ -16,12 +16,13 @@ Defines **plan file structure only**. Stack rules live in the repo's `AGENTS.md`
    - User can't decide, or asks a question back → mark the §8 row as **open** with the context that blocked it; continue other branches.
    - Later resolved → replace the open marker with the answer.
 3. **Fill** §2–§7. If §8 still has open rows, grill again on only those items.
+4. **Report** — end the final message by telling the user where the plan file is: full path, stated plainly (e.g. `Plan saved at: /path/to/repo/feature.plan.md`). Never finish without it.
 
 ## Rules
 
 - All 8 headings always render, in order. Empty ones get `None` — never delete a heading.
 - §7 maps 1:1 to frontmatter `todos`. No orphan todos, no unlisted steps.
-- **Reading a plan: skip the fenced mermaid blocks, read the ASCII flow.** Diagrams are human-only and carry nothing the ASCII flow omits.
+- §6's mermaid Before/After diagrams **are** the flow description — make them complete enough to stand alone (every step, branch, and exit named).
 - §3–§5 all use the same ASCII-tree shape; §4 and §5 annotate each leaf (`— what changes` / `— why removed`).
 - §6 shows **Before** (current flow) and **After** (planned flow) so the change is visible as a diff. Keep node IDs and layout identical where the flow is unchanged; mark added/modified nodes with `:::changed` (dashed). Greenfield work: Before is `None`, only After renders.
 - Compact: tables, bullets, paths. Concrete names — no "etc." or "similar to existing". Complex plans get more *rows*, not longer *sentences*.
@@ -85,7 +86,6 @@ src/
 ```
 
 ## 6. How it works
-<!-- flowcharts below are human-only — skip when reading this plan -->
 
 ### Before (current flow)
 {`None` for greenfield work — no diagram then.}
@@ -109,13 +109,6 @@ flowchart TD
     B -->|yes| C[Step]:::changed
   end
   classDef changed stroke-dasharray: 5 5
-```
-
-**ASCII flow** (source of truth — arrow chain, one path per line; branches on their own line; always in a fenced block so it renders monospace in the CLI):
-
-```
-trigger -> load input -> validate -> process -> save -> done
-validate -[invalid]-> log error -> exit
 ```
 
 ### {Non-obvious rule}
