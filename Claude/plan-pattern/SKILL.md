@@ -15,7 +15,7 @@ Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAU
    - Answered → fold into its section: what/how/scope → §2, file effects → §3–§5, behavior/edge cases → §6, sequencing → §7.
    - Undecided or user asks back → §8 row marked **open** with the blocker; continue other branches. Resolved later → replace the marker.
 3. **Fill** §2–§7. Open §8 rows → grill again on those only.
-4. **Report** — final message ends with the full path: `Plan saved at: /path/to/repo/feature.plan.md`. Never finish without it.
+4. **Report** — final message ends with the full path: `Plan saved at: /path/to/repo/feature.plan.md`. Never finish without it. Building it is `/plan-clean-structure`'s job.
 
 ## Rules
 
