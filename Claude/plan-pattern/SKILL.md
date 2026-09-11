@@ -24,6 +24,7 @@ Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAU
 - §3–§5 share one ASCII-tree shape; §4/§5 annotate each leaf (`— what changes` / `— why removed`).
 - §6 mermaid **Before**/**After** *is* the flow description — complete enough to stand alone (every step, branch, exit named). Same node IDs/layout where unchanged; added/modified nodes `:::changed`. Greenfield: Before = `None`.
 - §7 ↔ frontmatter `todos` 1:1. No orphan todos, no unlisted steps.
+- Last line of the file is its own absolute path (`Plan saved at: …`) so the plan can be found from any context.
 - Compact: tables, bullets, paths. Concrete names — no "etc." / "similar to existing". Complex plans get more *rows*, not longer *sentences*.
 
 ## Template
@@ -130,3 +131,6 @@ flowchart TD
 |---|---|
 | {question, compressed} | {answer, one line} |
 | {parked question} | **open** — {context / blocker} |
+
+---
+Plan saved at: {/absolute/path/to/this/file.plan.md}
