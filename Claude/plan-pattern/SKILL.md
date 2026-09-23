@@ -9,13 +9,13 @@ Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAU
 
 ## Workflow — always, no exceptions
 
-1. **Write** the plan file: §1 Requirement (user's needs, short list), §2 Understanding with only **Current** filled from codebase exploration, §8 empty.
+1. **Write** the plan file as `{kebab-topic}.plan.md` — never a bare `.md`. Directory: the one the repo or user already uses for plans, else `.claude/plans/` in the repo. Plan mode assigned a path ending in plain `.md` → write there while in Plan mode, then the moment it exits `mv` it to `{kebab-topic}.plan.md` and fix the last line. Start with §1 Requirement (user's needs, short list), §2 Understanding with only **Current** filled from codebase exploration, §8 empty.
 2. **Grill** — invoke the `grilling` skill. One question at a time, each with a recommended answer. Never ask what the code can answer.
    - Every question → one row in §8 (question + one-line answer).
    - Answered → fold into its section: what/how/scope → §2, file effects → §3–§5, behavior/edge cases → §6, sequencing → §7.
    - Undecided or user asks back → §8 row marked **open** with the blocker; continue other branches. Resolved later → replace the marker.
 3. **Fill** §2–§7. Open §8 rows → grill again on those only.
-4. **Report** — final message ends with the full path: `Plan saved at: /path/to/repo/feature.plan.md`. Never finish without it. Building it is `/plan-clean-structure`'s job.
+4. **Report** — final message ends with the full path: `Plan saved at: /path/to/repo/feature.plan.md`. Never finish without it, and never with a path that doesn't end in `.plan.md`. Building it is `/plan-clean-structure`'s job.
 
 ## Rules
 
@@ -24,7 +24,7 @@ Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAU
 - §3–§5 share one ASCII-tree shape; §4/§5 annotate each leaf (`— what changes` / `— why removed`).
 - §6 mermaid **Before**/**After** *is* the flow description — complete enough to stand alone (every step, branch, exit named). Same node IDs/layout where unchanged; added/modified nodes `:::changed`. Greenfield: Before = `None`.
 - §7 ↔ frontmatter `todos` 1:1. No orphan todos, no unlisted steps.
-- Last line of the file is its own absolute path (`Plan saved at: …`) so the plan can be found from any context.
+- File name ends in `.plan.md`; last line of the file is its own absolute path (`Plan saved at: …`) so the plan can be found from any context.
 - Compact: tables, bullets, paths. Concrete names — no "etc." / "similar to existing". Complex plans get more *rows*, not longer *sentences*.
 
 ## Template
