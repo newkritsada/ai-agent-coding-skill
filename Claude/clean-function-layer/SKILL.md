@@ -1,9 +1,9 @@
 ---
-name: function-flow
+name: clean-function-layer
 description: Function-based clean code style — decompose code so the top-level function reads like a flowchart of named steps. Use whenever writing or refactoring any function longer than ~30 lines, a script, a seed/backfill job, a handler, or a service method — especially when the user says "clean", "readable", "refactor", "split into functions", or the code mixes fetching, deciding, and writing in one body, or a function's parameter list has grown long. Project-agnostic; applies to any language or package.
 ---
 
-# Function Flow — code that reads like a flowchart
+# Clean Function Layer — code that reads like a flowchart
 
 One governing rule:
 

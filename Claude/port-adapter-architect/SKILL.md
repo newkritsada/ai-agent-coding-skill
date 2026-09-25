@@ -1,9 +1,9 @@
 ---
-name: clean-architect
+name: port-adapter-architect
 description: Clean Architecture as a portable concept — layering, the dependency rule, ports & adapters, where code belongs. Use when writing, reviewing, refactoring, or planning backend code (NestJS, Go, Elysia, or any stack), or when deciding where new code belongs or whether a dependency/import is allowed. Adapt to each repo's existing structure; apply as principles when the repo can't follow the full shape.
 ---
 
-# Clean Architect
+# Port-Adapter Architect
 
 One governing rule:
 
@@ -73,9 +73,9 @@ Ask what decision the code is making:
 
 **Query count must not grow with row or input cardinality.** `Promise.all`/goroutines over a *fixed* set of independent queries is fine; a query per mapped item or inside a loop is N+1 — batch with `IN` or a join. When dismissing one, say why it's bounded.
 
-## Function scope → apply the `function-flow` skill
+## Function scope → apply the `clean-function-layer` skill
 
-Layers place code between files; inside a function, `function-flow` governs:
+Layers place code between files; inside a function, `clean-function-layer` governs:
 
 - A use case's body is the narrative of its workflow — named steps (`load → resolve/build → plan (pure) → apply/save → report`). `// section` comments mark helpers waiting to be extracted.
 - Separate deciding from doing *within* a function too: decisions are pure and return explicit actions; side effects live in one place.
@@ -106,5 +106,5 @@ Layers place code between files; inside a function, `function-flow` governs:
 | Port added by imitation | Check the ceremony budget first |
 | Query per mapped item / in a loop | Batch with `IN` or a join |
 | Test named after a class or exception | Actor + action + business outcome |
-| Long workflow body with `// section` comments | Extract named steps per `function-flow` |
+| Long workflow body with `// section` comments | Extract named steps per `clean-function-layer` |
 | Domain importing framework "just for a type" | Define the type in the domain; map at the edge |
