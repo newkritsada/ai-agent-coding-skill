@@ -22,7 +22,12 @@ Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAU
 - All 8 headings render, in order. Empty → `None`. Never delete a heading.
 - §2 has three fixed parts: **Current** (how the affected flow works today), **To do** (what + how), **Constraints**. **To do** is derived only from §1 + §8 — no scope without a source. **Current** is the short read; §6 Before is the full diagram — don't duplicate.
 - §3–§5 share one ASCII-tree shape; §4/§5 annotate each leaf (`— what changes` / `— why removed`).
-- §6 mermaid **Before**/**After** *is* the flow description — complete enough to stand alone (every step, branch, exit named). Same node IDs/layout where unchanged; added/modified nodes `:::changed`. Greenfield: Before = `None`.
+- §6 mermaid **Before**/**After** *is* the flow description — complete enough to stand alone (every step, branch, exit named). Same subgraph/node IDs where unchanged; added/modified nodes `:::changed`. Greenfield: Before = `None`.
+- §6 diagram style — always this shape:
+  - `graph TB`; one `subgraph` per layer or responsibility, label `"{emoji} {Name}"`, `direction TB` inside. Nodes are the real files/functions/steps in the code's own names.
+  - Every edge between subgraphs is labeled: `-->|calls|`, `-->|depends on|`, `-->|returns|`; dashed `-.->|implements|` for interface/async/optional. Branches: `{cond?}` diamond with `|yes|`/`|no|`. Edges point downward only — no back-edges; a return value is implied by the call.
+  - Color every subgraph with `style` from one palette: 🌐 Presentation `#87ceeb` · ⚙️ Application `#98fb98` · 💎 Domain `#ffd700` · 🔧 Infrastructure `#dda0dd` · 🔌 External `#f5deb3` — `stroke:#333,stroke-width:2px`. Non-layered code: pick by role (entry → blue, logic → green, core rules → gold, I/O → purple).
+  - Highlight change: `classDef changed stroke:#ff6347,stroke-width:3px` on added/modified nodes; a subgraph whose whole content is new gets `stroke:#ff6347,stroke-width:3px` in its `style`.
 - §7 ↔ frontmatter `todos` 1:1. No orphan todos, no unlisted steps.
 - File name ends in `.plan.md`; last line of the file is its own absolute path (`Plan saved at: …`) so the plan can be found from any context.
 - Compact: tables, bullets, paths. Concrete names — no "etc." / "similar to existing". Complex plans get more *rows*, not longer *sentences*.
@@ -98,24 +103,70 @@ src/
 {`None` for greenfield — no diagram then.}
 
 ```mermaid
-flowchart TD
-  subgraph current["{file or responsibility}"]
-    A[Start] --> B[Current step]:::changed
-    B --> X[Exit]
-  end
-  classDef changed stroke-dasharray: 5 5
+graph TB
+    subgraph Presentation["🌐 {Presentation / entry}"]
+        direction TB
+        P1[{Controller.method}]
+    end
+
+    subgraph Application["⚙️ {Application / logic}"]
+        direction TB
+        A1[{UseCase.execute}]
+        A2[{Port / Interface}]
+    end
+
+    subgraph Infrastructure["🔧 {Infrastructure / I/O}"]
+        direction TB
+        I1[{Repository}]
+    end
+
+    P1 -->|calls| A1
+    A1 -->|depends on| A2
+    I1 -.->|implements| A2
+
+    style Presentation fill:#87ceeb,stroke:#333,stroke-width:2px
+    style Application fill:#98fb98,stroke:#333,stroke-width:2px
+    style Infrastructure fill:#dda0dd,stroke:#333,stroke-width:2px
 ```
 
 ### After (planned flow)
 
 ```mermaid
-flowchart TD
-  subgraph planned["{file or responsibility}"]
-    A[Start] --> B{condition?}:::changed
-    B -->|no| X[Exit]
-    B -->|yes| C[Step]:::changed
-  end
-  classDef changed stroke-dasharray: 5 5
+graph TB
+    subgraph Presentation["🌐 {Presentation / entry}"]
+        direction TB
+        P1[{Controller.method}]
+    end
+
+    subgraph Application["⚙️ {Application / logic}"]
+        direction TB
+        A1[{UseCase.execute}]
+        A3{condition?}:::changed
+        A2[{Port / Interface}]
+    end
+
+    subgraph Domain["💎 {Domain / core rules}"]
+        direction TB
+        D1[{Entity / rule}]:::changed
+    end
+
+    subgraph Infrastructure["🔧 {Infrastructure / I/O}"]
+        direction TB
+        I1[{Repository}]
+    end
+
+    P1 -->|calls| A1
+    A1 --> A3
+    A3 -->|no| X[{Exit: error}]
+    A3 -->|yes| D1
+    A1 -->|depends on| A2
+    I1 -.->|implements| A2
+
+    style Presentation fill:#87ceeb,stroke:#333,stroke-width:2px
+    style Application fill:#98fb98,stroke:#333,stroke-width:2px
+    style Domain fill:#ffd700,stroke:#ff6347,stroke-width:3px
+    style Infrastructure fill:#dda0dd,stroke:#333,stroke-width:2px
+    classDef changed stroke:#ff6347,stroke-width:3px
 ```
 
 ### {Non-obvious rule}
