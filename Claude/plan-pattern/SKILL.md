@@ -25,7 +25,7 @@ Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAU
 - §6 mermaid **Before**/**After** *is* the flow description — complete enough to stand alone (every step, branch, exit named). Same subgraph/node IDs where unchanged; added/modified nodes `:::changed`. Greenfield: Before = `None`.
 - §6 diagram style — always this shape:
   - `graph TB`; one `subgraph` per layer or responsibility, label `"{emoji} {Name}"`, `direction TB` inside. Nodes are the real files/functions/steps in the code's own names.
-  - Every edge between subgraphs is labeled: `-->|calls|`, `-->|depends on|`, `-->|returns|`; dashed `-.->|implements|` for interface/async/optional. Branches: `{cond?}` diamond with `|yes|`/`|no|`. Edges point downward only — no back-edges; a return value is implied by the call.
+  - Every edge between subgraphs is labeled: `-->|calls|`, `-->|depends on|`, `-->|reads|`; dashed `-.->|implements|` for interface/async/optional. Branches: `{cond?}` diamond with `|yes|`/`|no|`. Edges point downward only — no back-edges; a return value is implied by the call.
   - Color every subgraph with `style` from one palette: 🌐 Presentation `#87ceeb` · ⚙️ Application `#98fb98` · 💎 Domain `#ffd700` · 🔧 Infrastructure `#dda0dd` · 🔌 External `#f5deb3` — `stroke:#333,stroke-width:2px`. Non-layered code: pick by role (entry → blue, logic → green, core rules → gold, I/O → purple).
   - Highlight change: `classDef changed stroke:#ff6347,stroke-width:3px` on added/modified nodes; a subgraph whose whole content is new gets `stroke:#ff6347,stroke-width:3px` in its `style`.
 - §7 ↔ frontmatter `todos` 1:1. No orphan todos, no unlisted steps.
