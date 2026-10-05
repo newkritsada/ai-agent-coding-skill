@@ -73,9 +73,9 @@ Ask what decision the code is making:
 
 **Query count must not grow with row or input cardinality.** `Promise.all`/goroutines over a *fixed* set of independent queries is fine; a query per mapped item or inside a loop is N+1 — batch with `IN` or a join. When dismissing one, say why it's bounded.
 
-## Function scope → apply the `clean-function-layer` skill
+## Function scope → apply the `clean-function` skill
 
-Layers place code between files; inside a function, `clean-function-layer` governs:
+Layers place code between files; inside a function, `clean-function` governs:
 
 - A use case's body is the narrative of its workflow — named steps (`load → resolve/build → plan (pure) → apply/save → report`). `// section` comments mark helpers waiting to be extracted.
 - Separate deciding from doing *within* a function too: decisions are pure and return explicit actions; side effects live in one place.
@@ -106,5 +106,5 @@ Layers place code between files; inside a function, `clean-function-layer` gover
 | Port added by imitation | Check the ceremony budget first |
 | Query per mapped item / in a loop | Batch with `IN` or a join |
 | Test named after a class or exception | Actor + action + business outcome |
-| Long workflow body with `// section` comments | Extract named steps per `clean-function-layer` |
+| Long workflow body with `// section` comments | Extract named steps per `clean-function` |
 | Domain importing framework "just for a type" | Define the type in the domain; map at the edge |
