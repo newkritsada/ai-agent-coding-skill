@@ -15,6 +15,13 @@ description: Function-based clean code style — the orchestrating function read
   task, in its current style. Big rewrites hide bugs and bloat the diff.
 - New logic added inside an existing function may go in a **new** helper that follows
   this skill; the existing body just calls it.
+- **Safe micro-cleanups are allowed** on the lines you change or the condition next to
+  them — same behavior, no flow change:
+  - magic number / string → named constant (`INACTIVE_DAYS = 90`)
+  - inline condition or expression → named pure function (`isInactive(student, now)`)
+
+  Not allowed without asking: reordering steps, moving IO, changing loops or queries,
+  renaming or re-signing existing functions.
 - Refactor existing code (§5) **only when the user explicitly asks**. If an existing
   function would clearly benefit, suggest it in one line — don't do it.
 
