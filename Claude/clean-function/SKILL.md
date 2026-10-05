@@ -1,12 +1,22 @@
 ---
 name: clean-function
-description: Function-based clean code style — the orchestrating function reads like a flowchart of named steps, and every function is small, single-purpose, and has few arguments. Use whenever writing or refactoring any function longer than ~30 lines, a script, a seed/backfill job, or a service method — especially when the user says "clean", "readable", "refactor", "split into functions", or the code mixes fetching, deciding, and writing in one body, or a function's parameter list has grown long. Project-agnostic; applies to any language or package.
+description: Function-based clean code style — the orchestrating function reads like a flowchart of named steps, and every function is small, single-purpose, and has few arguments. Use whenever writing a NEW function longer than ~30 lines, a script, a seed/backfill job, or a service method. Refactor existing functions only when the user explicitly asks ("refactor", "clean this", "split into functions"). Project-agnostic; applies to any language or package.
 ---
 
 # Clean Function
 
 > **Reading only the names an orchestrator calls, top to bottom, tells you what it does.
 > Details live one level down.**
+
+## 0. Scope — new code only
+
+- **New function** → apply this skill fully.
+- **Existing function** → don't restructure it. Make the smallest change that does the
+  task, in its current style. Big rewrites hide bugs and bloat the diff.
+- New logic added inside an existing function may go in a **new** helper that follows
+  this skill; the existing body just calls it.
+- Refactor existing code (§5) **only when the user explicitly asks**. If an existing
+  function would clearly benefit, suggest it in one line — don't do it.
 
 ## 1. Who orchestrates
 
@@ -64,7 +74,7 @@ the decomposition failed.
    query per item inside a loop.
 7. **Order functions in reading order** under banners: `// ---------- plan ----------`.
 
-## 4. Every function you create or touch
+## 4. Every function you create
 
 1. **One job.** If the name needs "and", split it.
 2. **Reusable.** Depends only on its arguments, returns a value, no hidden state.
@@ -96,7 +106,7 @@ the decomposition failed.
    - Not counted: DI/constructor params, framework-fixed signatures.
    - Same-typed pairs are fine when the verb gives the order (`copy(from, to)`).
 
-## 5. Refactor steps
+## 5. Refactor steps (only when the user asks)
 
 1. Match the repo's existing style first; imitate its nearest good example.
 2. List the function's steps as comments — that list is the new orchestrator.
