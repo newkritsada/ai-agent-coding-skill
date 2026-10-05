@@ -24,9 +24,9 @@ Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAU
 - §3–§5 share one ASCII-tree shape; §4/§5 annotate each leaf (`— what changes` / `— why removed`).
 - §6 mermaid **Before**/**After** *is* the flow description — complete enough to stand alone (every step, branch, exit named). Same subgraph/node IDs where unchanged; added/modified nodes `:::changed`. Greenfield: Before = `None`.
 - §6 diagram style — always this shape:
-  - `graph TB`; one `subgraph` per layer or responsibility, label `"{emoji} {Name}"`, `direction TB` inside. Nodes are the real files/functions/steps in the code's own names.
-  - Every edge between subgraphs is labeled: `-->|calls|`, `-->|depends on|`, `-->|reads|`; dashed `-.->|implements|` for interface/async/optional. Branches: `{cond?}` diamond with `|yes|`/`|no|`. Edges point downward only — no back-edges; a return value is implied by the call.
-  - Color every subgraph with `style` from one palette: 🌐 Presentation `#87ceeb` · ⚙️ Application `#98fb98` · 💎 Domain `#ffd700` · 🔧 Infrastructure `#dda0dd` · 🔌 External `#f5deb3` — `stroke:#333,stroke-width:2px`. Non-layered code: pick by role (entry → blue, logic → green, core rules → gold, I/O → purple).
+  - `graph TB`; **frames follow the project's real structure** — one `subgraph` per folder / module / package the flow passes through, labeled with its actual path (`"{emoji} src/routes"`, `"{emoji} internal/billing"`), `direction TB` inside. Never invent architecture frames (Presentation, Application, Domain…) the repo doesn't have; use them only if they are the repo's own folder names. Nodes are the real files/functions/steps in the code's own names.
+  - Every edge between subgraphs is labeled: `-->|calls|`, `-->|depends on|`, `-->|reads|`, `-->|writes|`; dashed `-.->|implements|` for interface/async/optional. Branches: `{cond?}` diamond with `|yes|`/`|no|`. Edges point downward only — no back-edges; a return value is implied by the call.
+  - Color each frame by the **role** of that folder, from one palette: 🌐 entry `#87ceeb` · ⚙️ logic `#98fb98` · 💎 core rules `#ffd700` · 🔧 I/O `#dda0dd` · 🔌 external `#f5deb3` — `stroke:#333,stroke-width:2px`. Emoji matches the color.
   - Highlight change: `classDef changed stroke:#ff6347,stroke-width:3px` on added/modified nodes; a subgraph whose whole content is new gets `stroke:#ff6347,stroke-width:3px` in its `style`.
 - §7 ↔ frontmatter `todos` 1:1. No orphan todos, no unlisted steps.
 - File name ends in `.plan.md`; last line of the file is its own absolute path (`Plan saved at: …`) so the plan can be found from any context.
@@ -100,72 +100,68 @@ src/
 ## 6. How it works
 
 ### Before (current flow)
-{`None` for greenfield — no diagram then.}
+{`None` for greenfield — no diagram then. Frames = the repo's real folders; names below are placeholders.}
 
 ```mermaid
 graph TB
-    subgraph Presentation["🌐 {Presentation / entry}"]
+    subgraph Routes["🌐 {src/routes}"]
         direction TB
-        P1[{Controller.method}]
+        R1[{orders.route.ts: POST /orders}]
     end
 
-    subgraph Application["⚙️ {Application / logic}"]
+    subgraph Services["⚙️ {src/services}"]
         direction TB
-        A1[{UseCase.execute}]
-        A2[{Port / Interface}]
+        S1[{createOrder}]
     end
 
-    subgraph Infrastructure["🔧 {Infrastructure / I/O}"]
+    subgraph Db["🔧 {src/db}"]
         direction TB
-        I1[{Repository}]
+        D1[{orderRepo.insert}]
     end
 
-    P1 -->|calls| A1
-    A1 -->|depends on| A2
-    I1 -.->|implements| A2
+    R1 -->|calls| S1
+    S1 -->|writes| D1
 
-    style Presentation fill:#87ceeb,stroke:#333,stroke-width:2px
-    style Application fill:#98fb98,stroke:#333,stroke-width:2px
-    style Infrastructure fill:#dda0dd,stroke:#333,stroke-width:2px
+    style Routes fill:#87ceeb,stroke:#333,stroke-width:2px
+    style Services fill:#98fb98,stroke:#333,stroke-width:2px
+    style Db fill:#dda0dd,stroke:#333,stroke-width:2px
 ```
 
 ### After (planned flow)
 
 ```mermaid
 graph TB
-    subgraph Presentation["🌐 {Presentation / entry}"]
+    subgraph Routes["🌐 {src/routes}"]
         direction TB
-        P1[{Controller.method}]
+        R1[{orders.route.ts: POST /orders}]
     end
 
-    subgraph Application["⚙️ {Application / logic}"]
+    subgraph Services["⚙️ {src/services}"]
         direction TB
-        A1[{UseCase.execute}]
-        A3{condition?}:::changed
-        A2[{Port / Interface}]
+        S1[{createOrder}]
+        S2{in stock?}:::changed
     end
 
-    subgraph Domain["💎 {Domain / core rules}"]
+    subgraph Pricing["💎 {src/pricing}"]
         direction TB
-        D1[{Entity / rule}]:::changed
+        P1[{calcTotal}]:::changed
     end
 
-    subgraph Infrastructure["🔧 {Infrastructure / I/O}"]
+    subgraph Db["🔧 {src/db}"]
         direction TB
-        I1[{Repository}]
+        D1[{orderRepo.insert}]
     end
 
-    P1 -->|calls| A1
-    A1 --> A3
-    A3 -->|no| X[{Exit: error}]
-    A3 -->|yes| D1
-    A1 -->|depends on| A2
-    I1 -.->|implements| A2
+    R1 -->|calls| S1
+    S1 -->|calls| P1
+    S1 --> S2
+    S2 -->|no| X[{Exit: OutOfStockError}]
+    S2 -->|yes · writes| D1
 
-    style Presentation fill:#87ceeb,stroke:#333,stroke-width:2px
-    style Application fill:#98fb98,stroke:#333,stroke-width:2px
-    style Domain fill:#ffd700,stroke:#ff6347,stroke-width:3px
-    style Infrastructure fill:#dda0dd,stroke:#333,stroke-width:2px
+    style Routes fill:#87ceeb,stroke:#333,stroke-width:2px
+    style Services fill:#98fb98,stroke:#333,stroke-width:2px
+    style Pricing fill:#ffd700,stroke:#ff6347,stroke-width:3px
+    style Db fill:#dda0dd,stroke:#333,stroke-width:2px
     classDef changed stroke:#ff6347,stroke-width:3px
 ```
 
