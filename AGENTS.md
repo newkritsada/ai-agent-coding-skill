@@ -3,7 +3,7 @@
 `Claude/` is the source of truth. Each skill is `Claude/<name>/SKILL.md`, linked into `~/.claude/skills/<name>` **one link per skill** (symlink on macOS/Linux, junction on Windows). Nothing is copied; edits are live.
 
 ## Create a skill
-1. `Claude/<name>/SKILL.md` — frontmatter `name: <name>` (same as the folder), `description:` with the trigger phrases, `disable-model-invocation: true` only for manual launchers (`grill-me`, `plan-clean-structure`, `plan-phased-mr`).
+1. `Claude/<name>/SKILL.md` — frontmatter `name: <name>` (same as the folder), `description:` with the trigger phrases, `disable-model-invocation: true` only for manual launchers (`grill-me`, `plan-clean-structure`, `plan-phased-mr`, `plan-diagram-archify`).
 2. Keep the body lean: rules, tables, one template. Refer to sibling skills as `../<name>/SKILL.md`.
 3. Run the linker. A new folder is invisible to Claude until it is linked.
 
