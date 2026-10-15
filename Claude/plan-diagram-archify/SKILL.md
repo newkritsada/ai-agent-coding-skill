@@ -1,6 +1,6 @@
 ---
 name: plan-diagram-archify
-description: Plan a feature with plan-pattern plus an archify diagram suggestion, then render the plan's flow as archify diagrams plus a file-change tree (created, changed, deleted) in one tabbed Artifact that later runs update in place. Use instead of /plan-clean-structure when the goal is a diagram, not code. Manual launcher — invoke with /plan-diagram-archify.
+description: Plan a feature with plan-pattern (file name gets `-diagram` before `.md`) plus archify diagram types, then render the plan's flow as archify diagrams and a file-change tree in one tabbed Artifact that later runs update in place. Use instead of /plan-clean-structure when the goal is a diagram, not code. Manual launcher — invoke with /plan-diagram-archify.
 disable-model-invocation: true
 ---
 
@@ -8,86 +8,59 @@ disable-model-invocation: true
 
 ## Diagram only — no code
 
-The plan exists for **reviewing the diagram**. This skill's output is the `.plan.md`, `{dir}/` files and the Artifact — nothing else.
-
-- Never create, edit or delete application code, tests, configs or migrations — not even a step of §7.
-- "Build" here means render the diagram. Never execute §7 and never change a todo `status`; todos stay `pending`.
-- Exiting plan mode or approving the plan is **not** a request to build code — go straight to Build mode (render).
-- Build code only when the user explicitly asks to build/implement this plan → hand off to `/plan-clean-structure` with the plan path; don't start it yourself.
+Output = the plan file, `{dir}/` files, the Artifact. Never touch app code, tests, configs or migrations; never run §7 or change a todo `status`. Approving the plan or exiting plan mode means **render**, not build. Build code only when the user explicitly says so → `../plan-clean-structure/SKILL.md`.
 
 ## Mode
 
 | Context | Mode |
 |---|---|
-| Plan mode active, or args describe a feature | **Plan** |
-| Not in plan mode, plan path given or findable | **Build** |
+| Plan mode, or args describe a feature | **Plan** |
+| Otherwise | **Build** — plan per `../plan-pattern/SKILL.md` **Using a plan** |
 
-Find the plan like `../plan-clean-structure/SKILL.md`: given path → last `Plan saved at:` → newest `*.plan.md` under `.claude/plans/`.
+## archify
 
-## archify check (both modes)
-
-archify = `~/.claude/skills/archify/` or `.claude/skills/archify/` (`SKILL.md` + `bin/archify.mjs`). Missing →
-
-1. Plan mode → no install (read-only). Add to §2 **Constraints**: `prereq: npx skills add tt-a1i/archify -g`.
-2. Otherwise → show `npx skills add tt-a1i/archify -g`, ask **once**, install (the `skills` CLI needs Node ≥ 20.12 — on an older default, prefix `PATH` with a newer nvm Node), then `node <archify>/bin/archify.mjs doctor`. Declined → Plan mode: prereq line as above. Build mode: stop and say so.
+`~/.claude/skills/archify/` or `.claude/skills/archify/` (`SKILL.md` + `bin/archify.mjs`). Missing → Plan mode: add `prereq: npx skills add tt-a1i/archify -g` to §2 **Constraints**. Build mode: ask once, install (needs Node ≥ 20.12 — prefix `PATH` with a newer nvm Node if needed), run `node <archify>/bin/archify.mjs doctor`; declined → stop.
 
 ## Plan mode
 
-1. Read and follow `../plan-pattern/SKILL.md` fully — workflow, grilling, all 8 sections.
-2. Pick 1–3 archify types from the table below; first = primary. Ask in grilling only if two types tie.
-3. Add the §6 sub-heading and frontmatter block from the template. `{topic}` = plan file name without `.plan.md`.
-4. End with `Plan saved at: …`. Render waits for Build mode.
+1. Follow `../plan-pattern/SKILL.md` fully. Enhance: add `-diagram` before `.md` in its file name — marks this skill; every other skill still reads it as a normal plan.
+2. Pick 1–3 types (first = primary); ask in grilling only on a tie. Add the template blocks.
 
-| Plan signal | archify type |
+| Plan signal | Type |
 |---|---|
-| §6 flow with steps / branches / exits | `workflow` (default primary) |
-| calls across API → service → DB / external over time | `sequence` |
-| §3–§4 span several modules, services, storage | `architecture` |
+| §6 steps / branches / exits | `workflow` (default) |
+| API → service → DB / external over time | `sequence` |
+| many modules, services, storage | `architecture` |
 | data moves / transforms / PII | `dataflow` |
-| entity status changes, retries | `lifecycle` |
-| migration / entity / relation changes | `erd` |
+| status changes, retries | `lifecycle` |
+| entity / relation / migration | `erd` |
 | new classes, interfaces, ports | `class` |
-| §3 folder tree is the point | `tree` |
-| phased rollout across §7 | `timeline` |
-| latency / step-cost breakdown | `waterfall` |
+| folder tree is the point | `tree` |
+| phased rollout | `timeline` |
+| latency / step cost | `waterfall` |
 
 ## Build mode
 
-1. Read the plan: §6 **After**, §3–§4, the `### Diagram (archify)` table, frontmatter `diagram:`. No table → add one first (Plan mode steps 2–3).
-2. Read `<archify>/SKILL.md` and, per type, its `schemas/` entry and `examples/` file — archify's rules win on JSON shape.
-3. Per row, write `{dir}/<type>.json` — first render: new; later: **edit** the existing file so unchanged nodes keep their ids and layout.
-   - Draw the planned (After) flow only. Frames/groups = the repo's real folder names. New or changed parts say so in label or note.
-   - `meta.quality_profile: "showcase"`.
-4. `node <archify>/bin/archify.mjs finalize <type> {dir}/<type>.json {dir}/<type>.html --quality showcase --json` (+ `--repo-root <repo>` when drawn from code). Re-render of an existing `<type>.html` → add `--out-dir {dir}/review-<n>` (archify refuses to reuse browser evidence; the HTML path stays fixed). Non-zero → fix the failed gate, rerun the full command. Never report a failing render as done.
-5. Copy `index.html` from this skill folder to `{dir}/index.html` and fill it from the plan:
+1. Read §3–§6, the Diagram table, frontmatter `diagram:`. No table → add one (Plan mode step 2). Never rename the plan.
+2. Read `<archify>/SKILL.md` + each type's `schemas/` and `examples/` entry — archify wins on JSON shape.
+3. Per row, write `{dir}/<type>.json` — re-render: **edit** it so unchanged ids/layout stay. Draw §6 **After** only; frames = the repo's real folders; mark new/changed parts. `meta.quality_profile: "showcase"`.
+4. `node <archify>/bin/archify.mjs finalize <type> {dir}/<type>.json {dir}/<type>.html --quality showcase --json` (+ `--repo-root <repo>` when drawn from code; existing `<type>.html` → + `--out-dir {dir}/review-<n>`). Non-zero → fix, rerun. Never report a failing render as done.
+5. Copy this folder's `index.html` to `{dir}/index.html`, fill: `{Plan title}` ← `name`, `{Plan overview}` ← `overview`, `TABS` ← table rows `{ type, why }`, `FILES` ← one `{ path, status, note }` per file the plan creates / changes / removes (`create` / `change` / `delete`, full repo path, note = its annotation; none → `[]`).
+6. Publish `file_path: {dir}/index.html`, `files: { "<type>.html": "{dir}/<type>.html", … }`, removed type → `null`.
+   - No `diagram.artifact` → new (`icon: diagram`), write the URL to frontmatter.
+   - Set → republish (later conversation: `Artifact read` it, then publish with `url`). Refused → publish new, replace URL, say so.
+7. Report: URL, types rendered, "automated checks only, not visually reviewed".
 
-   | Placeholder | From |
-   |---|---|
-   | `{Plan title}` (both) | frontmatter `name` |
-   | `{Plan overview}` | frontmatter `overview` |
-   | `TABS` | Diagram table rows in order — `{ type, why }` |
-   | `FILES` | §3 → `create`, §4 → `change`, §5 → `delete` — one `{ path, status, note }` per leaf, full repo-relative path, note = the leaf's `← …` / `— …` text |
-
-   The page adds a **Files** tab after the diagrams: an ASCII-shaped tree with `+` / `~` / `−` markers, per-status counts that filter, and each note. All three sections `None` → `FILES = []`, no tab.
-6. Publish — `file_path: {dir}/index.html`, `files: { "<type>.html": "{dir}/<type>.html", … }`:
-   - `diagram.artifact` empty → first publish (`icon: diagram`); write the URL into frontmatter.
-   - Set → same conversation: republish same `file_path`. Later conversation: `Artifact read` the url, then publish with `url`.
-   - Type removed from the table → `"<type>.html": null`.
-   - Publish refused for that url (not owner/writer) → publish new, replace the URL, say so.
-7. Report: artifact URL, types rendered, "automated checks only, not visually reviewed", then `Plan saved at: …`.
-
-## Update
-
-New context or a changed plan after a build → edit the plan (plan-pattern rules), then Build mode again. Same `dir`, same `<type>.json` files, same URL — never a new artifact while the old one is writable.
+Plan changed later → edit it, Build again: same `dir`, same JSON files, same URL.
 
 ## Template
 
-Frontmatter (add under `isProject`):
+Frontmatter, add:
 
 ```yaml
 diagram:
-  artifact: ""                # filled by first Build
-  dir: .archify/{topic}/      # relative to the repo root; Artifact sources must be under the cwd
+  artifact: ""                     # filled by first Build
+  dir: .archify/{plan}/            # {plan} = plan file name minus -diagram.md (or .md); under the cwd
 ```
 
 §6, after **After**:
@@ -96,8 +69,5 @@ diagram:
 ### Diagram (archify)
 | Type | Why | Source |
 |---|---|---|
-| workflow | {one line: what this view shows} | .archify/{topic}/workflow.json |
-| sequence | {one line} | .archify/{topic}/sequence.json |
-
-Prereq: archify — `npx skills add tt-a1i/archify -g`   ← only when missing
+| workflow | {what this view shows} | .archify/{plan}/workflow.json |
 ```
