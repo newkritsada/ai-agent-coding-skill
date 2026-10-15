@@ -1,6 +1,6 @@
 ---
 name: plan-diagram-archify
-description: Plan a feature with plan-pattern plus an archify diagram suggestion, then render the plan's flow as archify diagrams in one tabbed Artifact that later runs update in place. Use instead of /plan-clean-structure when the goal is a diagram, not code. Manual launcher — invoke with /plan-diagram-archify.
+description: Plan a feature with plan-pattern plus an archify diagram suggestion, then render the plan's flow as archify diagrams plus a file-change tree (created, changed, deleted) in one tabbed Artifact that later runs update in place. Use instead of /plan-clean-structure when the goal is a diagram, not code. Manual launcher — invoke with /plan-diagram-archify.
 disable-model-invocation: true
 ---
 
@@ -52,7 +52,16 @@ archify = `~/.claude/skills/archify/` or `.claude/skills/archify/` (`SKILL.md` +
    - Draw the planned (After) flow only. Frames/groups = the repo's real folder names. New or changed parts say so in label or note.
    - `meta.quality_profile: "showcase"`.
 4. `node <archify>/bin/archify.mjs finalize <type> {dir}/<type>.json {dir}/<type>.html --quality showcase --json` (+ `--repo-root <repo>` when drawn from code). Re-render of an existing `<type>.html` → add `--out-dir {dir}/review-<n>` (archify refuses to reuse browser evidence; the HTML path stays fixed). Non-zero → fix the failed gate, rerun the full command. Never report a failing render as done.
-5. Copy `index.html` from this skill folder to `{dir}/index.html`; replace both `{Plan title}` with the plan title and set `TABS` to the table's rows in order (`type`, `why`).
+5. Copy `index.html` from this skill folder to `{dir}/index.html` and fill it from the plan:
+
+   | Placeholder | From |
+   |---|---|
+   | `{Plan title}` (both) | frontmatter `name` |
+   | `{Plan overview}` | frontmatter `overview` |
+   | `TABS` | Diagram table rows in order — `{ type, why }` |
+   | `FILES` | §3 → `create`, §4 → `change`, §5 → `delete` — one `{ path, status, note }` per leaf, full repo-relative path, note = the leaf's `← …` / `— …` text |
+
+   The page adds a **Files** tab after the diagrams: an ASCII-shaped tree with `+` / `~` / `−` markers, per-status counts that filter, and each note. All three sections `None` → `FILES = []`, no tab.
 6. Publish — `file_path: {dir}/index.html`, `files: { "<type>.html": "{dir}/<type>.html", … }`:
    - `diagram.artifact` empty → first publish (`icon: diagram`); write the URL into frontmatter.
    - Set → same conversation: republish same `file_path`. Later conversation: `Artifact read` the url, then publish with `url`.

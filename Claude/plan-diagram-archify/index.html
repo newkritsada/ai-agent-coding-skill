@@ -2,9 +2,9 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap">
 <style>
-  /* Layout: slim drafting-sheet header (plan title + type tabs), one diagram filling the rest */
+  /* Layout: slim drafting-sheet header (title, overview, tabs), one view filling the rest — an archify diagram or the file-change tree */
   :root {
     --bg: #f3f5f7;
     --surface: #ffffff;
@@ -12,17 +12,27 @@
     --muted: #5d6b7a;
     --line: #d5dce3;
     --accent: #2f5d8a;
+    --create: #1f7a4d;
+    --change: #9a6400;
+    --delete: #b4352f;
+    --create-bg: #e3f3ea;
+    --change-bg: #fbf0dc;
+    --delete-bg: #fbe5e3;
     --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #11161c; --surface: #171e26; --fg: #e3e8ee; --muted: #93a1b0; --line: #2a3542; --accent: #7fb0e0;
+      --create: #6fd29e; --change: #e8b45a; --delete: #f08a82;
+      --create-bg: #183326; --change-bg: #352a14; --delete-bg: #3a1d1b;
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
     --bg: #11161c; --surface: #171e26; --fg: #e3e8ee; --muted: #93a1b0; --line: #2a3542; --accent: #7fb0e0;
+    --create: #6fd29e; --change: #e8b45a; --delete: #f08a82;
+    --create-bg: #183326; --change-bg: #352a14; --delete-bg: #3a1d1b;
     color-scheme: dark;
   }
   html, body { height: 100%; }
@@ -37,20 +47,15 @@
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 8px 20px;
+    gap: 6px 20px;
     padding-block: 12px 0;
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, env(safe-area-inset-right, 0px));
     border-bottom: 1px solid var(--line);
   }
-  h1 {
-    margin: 0 0 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    text-wrap: balance;
-    min-width: 0;
-  }
-  [role="tablist"] { display: flex; flex-wrap: wrap; gap: 4px; }
+  h1 { margin: 0; font-size: 1rem; font-weight: 600; text-wrap: balance; min-width: 0; }
+  .overview { margin: 0; flex-basis: 100%; max-width: 72ch; font-size: 0.875rem; line-height: 1.45; }
+  [role="tablist"] { display: flex; flex-wrap: wrap; gap: 4px; flex-basis: 100%; margin-top: 4px; }
   [role="tab"] {
     font: 500 0.8rem/1 var(--font-mono);
     letter-spacing: 0.04em;
@@ -64,44 +69,197 @@
   }
   [role="tab"]:hover { color: var(--fg); }
   [role="tab"][aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
-  [role="tab"]:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  [role="tab"]:focus-visible, .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .why { margin: 0 0 10px; font-size: 0.8rem; color: var(--muted); flex-basis: 100%; }
   main { flex: 1; min-height: 0; display: flex; background: var(--surface); }
   iframe { flex: 1; width: 100%; height: 100%; border: 0; }
-  .why {
-    margin: 0 0 10px;
-    font-size: 0.85rem;
-    color: var(--muted);
-    flex-basis: 100%;
+
+  #files {
+    flex: 1;
+    overflow: auto;
+    padding-block: 20px 32px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
+  .summary { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 500 0.8rem/1 var(--font-mono);
+    padding: 7px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--fg);
+    cursor: pointer;
+  }
+  .chip[aria-pressed="false"] { opacity: 0.45; }
+  .chip .n { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .chip.create { color: var(--create); background: var(--create-bg); border-color: transparent; }
+  .chip.change { color: var(--change); background: var(--change-bg); border-color: transparent; }
+  .chip.delete { color: var(--delete); background: var(--delete-bg); border-color: transparent; }
+  .chip[disabled] { cursor: default; }
+  .tree { font: 400 0.85rem/1.75 var(--font-mono); min-width: max-content; }
+  .row { display: flex; align-items: baseline; white-space: pre; }
+  .row[hidden] { display: none; }
+  .guide { color: var(--line); }
+  .mark { width: 1.6ch; text-align: center; font-weight: 500; }
+  .dir { font-weight: 500; }
+  .row.create .name, .row.create .mark { color: var(--create); }
+  .row.change .name, .row.change .mark { color: var(--change); }
+  .row.delete .name, .row.delete .mark { color: var(--delete); }
+  .row.delete .name { text-decoration: line-through; }
+  .note { color: var(--muted); padding-left: 2ch; white-space: normal; }
 </style>
 
 <header>
-  <h1 id="plan-title">{Plan title}</h1>
-  <div role="tablist" id="tabs" aria-label="Diagram type"></div>
+  <h1>{Plan title}</h1>
+  <p class="overview">{Plan overview}</p>
+  <div role="tablist" id="tabs" aria-label="Plan views"></div>
   <p class="why" id="why"></p>
 </header>
-<main><iframe id="view" title="Diagram"></iframe></main>
+<main>
+  <iframe id="view" title="Diagram"></iframe>
+  <section id="files" hidden aria-label="Files">
+    <div class="summary" id="summary"></div>
+    <div class="tree" id="tree"></div>
+  </section>
+</main>
 
 <script>
   const TABS = [
     { type: "workflow", why: "{one line from the plan's Diagram table}" },
   ];
 
+  const FILES = [
+    { path: "src/feature/index.ts", status: "create", note: "entry" },
+    { path: "src/app.ts", status: "change", note: "register feature route" },
+    { path: "src/legacy/old-feature.ts", status: "delete", note: "replaced by src/feature/" },
+  ];
+
+  const STATUS = {
+    create: { mark: "+", label: "created" },
+    change: { mark: "~", label: "changed" },
+    delete: { mark: "−", label: "deleted" },
+  };
+  const FILES_TAB = { type: "files", why: "Every file the plan creates, changes or deletes" };
+
   const tablist = document.getElementById("tabs");
   const view = document.getElementById("view");
+  const filesPanel = document.getElementById("files");
   const why = document.getElementById("why");
+  const allTabs = FILES.length ? [...TABS, FILES_TAB] : TABS;
+
+  function buildTree(files) {
+    const root = { dirs: new Map(), files: [] };
+    for (const f of files) {
+      const parts = f.path.split("/");
+      let node = root;
+      for (const dir of parts.slice(0, -1)) {
+        if (!node.dirs.has(dir)) node.dirs.set(dir, { dirs: new Map(), files: [] });
+        node = node.dirs.get(dir);
+      }
+      node.files.push({ ...f, name: parts[parts.length - 1] });
+    }
+    return root;
+  }
+
+  function collapse(name, node) {
+    while (node.files.length === 0 && node.dirs.size === 1) {
+      const [child, next] = [...node.dirs][0];
+      name += "/" + child;
+      node = next;
+    }
+    return [name, node];
+  }
+
+  function statusesUnder(node) {
+    const set = new Set(node.files.map(f => f.status));
+    for (const d of node.dirs.values()) statusesUnder(d).forEach(s => set.add(s));
+    return set;
+  }
+
+  function row(prefix, mark, name, note, cls) {
+    const el = document.createElement("div");
+    el.className = "row " + cls;
+    el.innerHTML = '<span class="guide"></span><span class="mark"></span><span class="name"></span><span class="note"></span>';
+    el.children[0].textContent = prefix;
+    el.children[1].textContent = mark;
+    el.children[2].textContent = name;
+    el.children[3].textContent = note || "";
+    return el;
+  }
+
+  function renderNode(node, prefix, out, top = false) {
+    const entries = [
+      ...[...node.dirs].map(([name, child]) => ({ dir: true, pair: collapse(name, child) })),
+      ...node.files.map(f => ({ dir: false, file: f })),
+    ];
+    entries.forEach((e, i) => {
+      const last = i === entries.length - 1;
+      const branch = top ? "" : prefix + (last ? "└── " : "├── ");
+      if (e.dir) {
+        const [name, child] = e.pair;
+        const el = row(branch, "", name + "/", "", "dir");
+        el.dataset.statuses = [...statusesUnder(child)].join(" ");
+        out.appendChild(el);
+        renderNode(child, top ? "" : prefix + (last ? "    " : "│   "), out);
+      } else {
+        const f = e.file;
+        const el = row(branch, STATUS[f.status].mark, f.name, f.note, f.status);
+        el.dataset.statuses = f.status;
+        out.appendChild(el);
+      }
+    });
+  }
+
+  function renderFiles() {
+    const tree = document.getElementById("tree");
+    renderNode(buildTree(FILES), "", tree, true);
+    const summary = document.getElementById("summary");
+    for (const [status, meta] of Object.entries(STATUS)) {
+      const n = FILES.filter(f => f.status === status).length;
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip " + status;
+      chip.dataset.status = status;
+      chip.setAttribute("aria-pressed", "true");
+      chip.disabled = n === 0;
+      chip.innerHTML = '<span class="n"></span><span></span>';
+      chip.children[0].textContent = meta.mark + " " + n;
+      chip.children[1].textContent = meta.label;
+      chip.addEventListener("click", () => {
+        chip.setAttribute("aria-pressed", String(chip.getAttribute("aria-pressed") !== "true"));
+        applyFilter();
+      });
+      summary.appendChild(chip);
+    }
+  }
+
+  function applyFilter() {
+    const on = new Set([...document.querySelectorAll(".chip[aria-pressed='true']")].map(c => c.dataset.status));
+    for (const el of document.querySelectorAll("#tree .row")) {
+      el.hidden = !el.dataset.statuses.split(" ").some(s => on.has(s));
+    }
+  }
 
   function select(type) {
-    const tab = TABS.find(t => t.type === type) || TABS[0];
-    view.src = tab.type + ".html";
-    view.title = tab.type + " diagram";
+    const tab = allTabs.find(t => t.type === type) || allTabs[0];
+    const isFiles = tab === FILES_TAB;
+    filesPanel.hidden = !isFiles;
+    view.hidden = isFiles;
+    if (!isFiles && view.getAttribute("src") !== tab.type + ".html") {
+      view.src = tab.type + ".html";
+      view.title = tab.type + " diagram";
+    }
     why.textContent = tab.why;
     for (const btn of tablist.children) {
       btn.setAttribute("aria-selected", String(btn.dataset.type === tab.type));
     }
   }
 
-  for (const t of TABS) {
+  for (const t of allTabs) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.setAttribute("role", "tab");
@@ -110,6 +268,7 @@
     btn.addEventListener("click", () => { history.replaceState(null, "", "#" + t.type); select(t.type); });
     tablist.appendChild(btn);
   }
-  tablist.hidden = TABS.length < 2;
+  tablist.hidden = allTabs.length < 2;
+  if (FILES.length) renderFiles();
   select(location.hash.slice(1));
 </script>
