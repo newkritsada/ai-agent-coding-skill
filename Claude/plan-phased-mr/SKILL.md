@@ -13,7 +13,7 @@ disable-model-invocation: true
 | Invoked with | Mode |
 |---|---|
 | a feature / requirement | **Plan** |
-| a `.plan.md` path, "build", "continue", "commit" | **Build** — plan file found like `../plan-clean-structure/SKILL.md` finds it |
+| a plan path or file name, "build", "continue", "commit" | **Build** — via `../plan-clean-structure/SKILL.md` (see **Build**) |
 
 ## Plan
 
@@ -77,7 +77,7 @@ disable-model-invocation: true
 
 ## Build
 
-Code style: pick the skill with `../plan-clean-structure/SKILL.md`'s scope rule and follow it — read it, don't run it (it builds all of §7 with no stops).
+Get the plan and pick the code-style skill with `../plan-clean-structure/SKILL.md`, then follow that skill — read it, don't run it (it builds all of §7 with no stops).
 
 1. **Start phase** — `git fetch`; `git switch -c {branch} origin/{default}`; `git cherry-pick {sha}` per listed pick. Conflict → stop and ask.
 2. **Build** every commit of the phase, in table order, uncommitted. Rows → `review`, todos → `in_progress`.
@@ -90,6 +90,6 @@ Code style: pick the skill with `../plan-clean-structure/SKILL.md`'s scope rule 
    - `git commit` with the planned message (plus the repo's attribution rules); row → `committed {short sha}`, todo → `completed`
 7. **Phase done** — working tree clean → `MR n/N ready: {branch}, {k} commits, {f} files`. Fill this sha into later phases' **Cherry-picks**, then step 1 for the next phase in the same turn. Last phase → list every branch; nothing pushed.
 
-End every stop with `Plan saved at: /abs/path/to/file.plan.md`.
+End every stop with `Plan saved at: /abs/path`.
 
 **Never:** commit without "commit" · start the next phase before this one's commits exist · merge two planned commits into one or mix them · amend or rebase a committed commit without asking · push or open an MR unasked.

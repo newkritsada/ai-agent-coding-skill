@@ -1,6 +1,6 @@
 ---
 name: plan-pattern
-description: Plan structure for .plan.md files (Plan mode, /plan, or user asks to plan/design/break down work). Defines frontmatter, 8 fixed sections, and todos. Always runs a mandatory `grilling` interview before filling the plan. Project-agnostic.
+description: Plan structure for plan files (Plan mode, /plan, or user asks to plan/design/break down work). Defines file naming with a group prefix for related plans, frontmatter, 8 fixed sections, and todos. Always runs a mandatory `grilling` interview before filling the plan. Project-agnostic.
 ---
 
 # Plan pattern
@@ -9,13 +9,38 @@ Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAU
 
 ## Workflow — always, no exceptions
 
-1. **Write** the plan file as `{kebab-topic}.plan.md` — never a bare `.md`. Directory: the one the repo or user already uses for plans, else `.claude/plans/` in the repo. Plan mode assigned a path ending in plain `.md` → write there while in Plan mode, then the moment it exits `mv` it to `{kebab-topic}.plan.md` and fix the last line. Start with §1 Requirement (user's needs, short list), §2 Understanding with only **Current** filled from codebase exploration, §8 empty.
+1. **Write** the plan file per **File location**. Start with §1 Requirement (user's needs, short list), §2 Understanding with only **Current** filled from codebase exploration, §8 empty.
 2. **Grill** — invoke the `grilling` skill. One question at a time, each with a recommended answer. Never ask what the code can answer.
    - Every question → one row in §8 (question + one-line answer).
    - Answered → fold into its section: what/how/scope → §2, file effects → §3–§5, behavior/edge cases → §6, sequencing → §7.
    - Undecided or user asks back → §8 row marked **open** with the blocker; continue other branches. Resolved later → replace the marker.
 3. **Fill** §2–§7. Open §8 rows → grill again on those only.
-4. **Report** — final message ends with the full path: `Plan saved at: /path/to/repo/feature.plan.md`. Never finish without it, and never with a path that doesn't end in `.plan.md`. Building it is `/plan-clean-structure`'s job.
+4. **Report** — final message ends with `Plan saved at: /abs/path/to/{group}--{topic}.md`. Never finish without it. Planning ends here; building is a separate step (**Using a plan**).
+
+## File location
+
+Related plans share a name prefix so they sort together in the plans folder.
+
+- Folder: the default plans folder (where Plan mode puts plans). Name: `{group}--{topic}.md`, both kebab-case.
+- `{topic}` = this plan's subject. `{group}`:
+
+| Situation | `{group}` |
+|---|---|
+| First plan in this session | short name of the overall work (often = topic) |
+| Another plan in this session | this session's group — unless the user says it's unrelated |
+| User names a plan file from another session | that file's group: the part before `--` (no `--` → its whole name) |
+
+- Never list or scan the plans folder to pick a group — only this session's plans or a file the user names.
+- Plan mode assigned another name → write there while in Plan mode; once it exits, `mv` to `{group}--{topic}.md` in the same folder and fix the last line.
+- `.plan.md` only on request — user asks for one → write `{group}--{topic}.plan.md` then, where they say (else the repo's `.claude/plans/`).
+
+## Using a plan
+
+For skills that read or build an existing plan.
+
+1. **Find** — path or file name the user gave (bare name → the plans folder) → else this session's last `Plan saved at:` → else ask for the file name.
+2. **Build** (only when the calling skill builds code) — execute §7 in order, updating each frontmatter todo `status` as you go.
+3. End with `Plan saved at: /abs/path`.
 
 ## Rules
 
@@ -29,7 +54,7 @@ Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAU
   - Color each frame by the **role** of that folder, from one palette: 🌐 entry `#87ceeb` · ⚙️ logic `#98fb98` · 💎 core rules `#ffd700` · 🔧 I/O `#dda0dd` · 🔌 external `#f5deb3` — `stroke:#333,stroke-width:2px`. Emoji matches the color.
   - Highlight change: `classDef changed stroke:#ff6347,stroke-width:3px` on added/modified nodes; a subgraph whose whole content is new gets `stroke:#ff6347,stroke-width:3px` in its `style`.
 - §7 ↔ frontmatter `todos` 1:1. No orphan todos, no unlisted steps.
-- File name ends in `.plan.md`; last line of the file is its own absolute path (`Plan saved at: …`) so the plan can be found from any context.
+- Last line of the file is its own absolute path (`Plan saved at: …`) so the plan can be found from any context.
 - Compact: tables, bullets, paths. Concrete names — no "etc." / "similar to existing". Complex plans get more *rows*, not longer *sentences*.
 
 ## Template
@@ -180,4 +205,4 @@ graph TB
 | {parked question} | **open** — {context / blocker} |
 
 ---
-Plan saved at: {/absolute/path/to/this/file.plan.md}
+Plan saved at: {/absolute/path/to/{group}--{topic}.md}
