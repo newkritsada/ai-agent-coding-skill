@@ -6,7 +6,14 @@ disable-model-invocation: true
 
 # Plan → archify diagram
 
-Never writes application code — building code is `/plan-clean-structure`'s job.
+## Diagram only — no code
+
+The plan exists for **reviewing the diagram**. This skill's output is the `.plan.md`, `{dir}/` files and the Artifact — nothing else.
+
+- Never create, edit or delete application code, tests, configs or migrations — not even a step of §7.
+- "Build" here means render the diagram. Never execute §7 and never change a todo `status`; todos stay `pending`.
+- Exiting plan mode or approving the plan is **not** a request to build code — go straight to Build mode (render).
+- Build code only when the user explicitly asks to build/implement this plan → hand off to `/plan-clean-structure` with the plan path; don't start it yourself.
 
 ## Mode
 
