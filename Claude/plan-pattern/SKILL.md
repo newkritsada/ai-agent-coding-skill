@@ -10,7 +10,7 @@ Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAU
 ## Workflow — always, no exceptions
 
 1. **Write** the plan file per **File location**. Start with §1 Requirement (user's needs, short list), §2 Understanding with only **Current** filled from codebase exploration, §8 empty.
-2. **Grill** — invoke the `grilling` skill. One question at a time, each with a recommended answer. Never ask what the code can answer.
+2. **Grill** — follow `../grilling/SKILL.md`.
    - Every question → one row in §8 (question + one-line answer).
    - Answered → fold into its section: what/how/scope → §2, file effects → §3–§5, behavior/edge cases → §6, sequencing → §7.
    - Undecided or user asks back → §8 row marked **open** with the blocker; continue other branches. Resolved later → replace the marker.
