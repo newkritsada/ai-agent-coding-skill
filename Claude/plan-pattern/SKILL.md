@@ -15,24 +15,24 @@ Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAU
    - Answered → fold into its section: what/how/scope → §2, file effects → §3–§5, behavior/edge cases → §6, sequencing → §7.
    - Undecided or user asks back → §8 row marked **open** with the blocker; continue other branches. Resolved later → replace the marker.
 3. **Fill** §2–§7. Open §8 rows → grill again on those only.
-4. **Report** — final message ends with `Plan saved at: /abs/path/to/{group}--{topic}.md`. Never finish without it. Planning ends here; building is a separate step (**Using a plan**).
+4. **Report** — final message ends with `Plan saved at: /abs/path/to/{group}_{topic}.md`. Never finish without it. Planning ends here; building is a separate step (**Using a plan**).
 
 ## File location
 
 Related plans share a name prefix so they sort together in the plans folder.
 
-- Folder: the default plans folder (where Plan mode puts plans). Name: `{group}--{topic}.md`, both kebab-case.
+- Folder: the default plans folder (where Plan mode puts plans). Name: `{group}_{topic}.md`, both kebab-case — `_` is the only split, never inside a name.
 - `{topic}` = this plan's subject. `{group}`:
 
 | Situation | `{group}` |
 |---|---|
 | First plan in this session | short name of the overall work (often = topic) |
 | Another plan in this session | this session's group — unless the user says it's unrelated |
-| User names a plan file from another session | that file's group: the part before `--` (no `--` → its whole name) |
+| User names a plan file from another session | that file's group: the part before the first `_` (no `_` → its whole name) |
 
 - Never list or scan the plans folder to pick a group — only this session's plans or a file the user names.
-- Plan mode assigned another name → write there while in Plan mode; once it exits, `mv` to `{group}--{topic}.md` in the same folder and fix the last line.
-- `.plan.md` only on request — user asks for one → write `{group}--{topic}.plan.md` then, where they say (else the repo's `.claude/plans/`).
+- Plan mode assigned another name → write there while in Plan mode; once it exits, `mv` to `{group}_{topic}.md` in the same folder and fix the last line.
+- `.plan.md` only on request — user asks for one → write `{group}_{topic}.plan.md` then, where they say (else the repo's `.claude/plans/`).
 
 ## Using a plan
 
@@ -205,4 +205,4 @@ graph TB
 | {parked question} | **open** — {context / blocker} |
 
 ---
-Plan saved at: {/absolute/path/to/{group}--{topic}.md}
+Plan saved at: {/absolute/path/to/{group}_{topic}.md}
