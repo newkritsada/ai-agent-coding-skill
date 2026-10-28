@@ -1,21 +1,29 @@
 ---
 name: plan-diagram-archify
-description: Plan a feature with plan-pattern (file name gets `-diagram` before `.md`) plus archify diagram types, then render the plan's flow as archify diagrams and a file-change tree in one tabbed Artifact that later runs update in place. Use instead of /plan-clean-structure when the goal is a diagram, not code. Manual launcher — invoke with /plan-diagram-archify.
+description: Plan a feature with plan-pattern (file name ends `.diagram.md`) plus archify diagram types, then render the plan's flow as archify diagrams and a file-change tree in one tabbed Artifact that later runs update in place. Use instead of /build-plan when the goal is a diagram, not code. Manual launcher — invoke with /plan-diagram-archify.
 disable-model-invocation: true
 ---
 
 # Plan → archify diagram
 
+## Uses
+
+Load a skill by name: read `~/.claude/skills/<name>/SKILL.md`.
+
+1. `/plan-pattern` — the plan file
+2. `/archify` — render
+3. `/build-plan` — only when the user asks to build code
+
 ## Diagram only — no code
 
-Output = the plan file, `{dir}/` files, the Artifact. Never touch app code, tests, configs or migrations; never run §7 or change a todo `status`. Approving the plan or exiting plan mode means **render**, not build. Build code only when the user explicitly says so → `../plan-clean-structure/SKILL.md`.
+Output = the plan file, `{dir}/` files, the Artifact. Never touch app code, tests, configs or migrations; never run §7 or change a todo `status`. Approving the plan or exiting plan mode means **render**, not build. Build code only when the user explicitly says so → `/build-plan`.
 
 ## Mode
 
 | Context | Mode |
 |---|---|
 | Plan mode, or args describe a feature | **Plan** |
-| Otherwise | **Build** — plan per `../plan-pattern/SKILL.md` **Using a plan** |
+| Otherwise | **Build** — plan per `/plan-pattern` **Using a plan** |
 
 ## archify
 
@@ -23,7 +31,7 @@ Output = the plan file, `{dir}/` files, the Artifact. Never touch app code, test
 
 ## Plan mode
 
-1. Follow `../plan-pattern/SKILL.md` fully. Enhance: add `-diagram` before `.md` in its file name — marks this skill; every other skill still reads it as a normal plan.
+1. Follow `/plan-pattern` fully. Enhance: file name ends `.diagram.md` instead of `.md` — marks this skill; every other skill still reads it as a normal plan.
 2. Pick 1–3 types (first = primary); ask in grilling only on a tie. Add the template blocks.
 
 | Plan signal | Type |
@@ -60,7 +68,7 @@ Frontmatter, add:
 ```yaml
 diagram:
   artifact: ""                     # filled by first Build
-  dir: .archify/{plan}/            # {plan} = plan file name minus -diagram.md (or .md); under the cwd
+  dir: .archify/{plan}/            # {plan} = plan file name minus .diagram.md (or .md); under the cwd
 ```
 
 §6, after **After**:

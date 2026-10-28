@@ -5,17 +5,23 @@ description: Plan structure for plan files (Plan mode, /plan, or user asks to pl
 
 # Plan pattern
 
+## Uses
+
+Load a skill by name: read `~/.claude/skills/<name>/SKILL.md`.
+
+1. `/grilling` — mandatory interview, **Workflow** step 2
+
 Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAUDE.md`.
 
 ## Workflow — always, no exceptions
 
 1. **Write** the plan file per **File location**. Start with §1 Requirement (user's needs, short list), §2 Understanding with only **Current** filled from codebase exploration, §8 empty.
-2. **Grill** — follow `../grilling/SKILL.md`.
+2. **Grill** — follow `/grilling`.
    - Every question → one row in §8 (question + one-line answer).
    - Answered → fold into its section: what/how/scope → §2, file effects → §3–§5, behavior/edge cases → §6, sequencing → §7.
    - Undecided or user asks back → §8 row marked **open** with the blocker; continue other branches. Resolved later → replace the marker.
 3. **Fill** §2–§7. Open §8 rows → grill again on those only.
-4. **Report** — final message ends with `Plan saved at: /abs/path/to/{group}_{topic}.md`. Never finish without it. Planning ends here; building is a separate step (**Using a plan**).
+4. **Report** — final message ends with the **Plan saved at** line. Never finish without it. Planning ends here; building is a separate step (**Using a plan**).
 
 ## File location
 
@@ -31,7 +37,7 @@ Related plans share a name prefix so they sort together in the plans folder.
 | User names a plan file from another session | that file's group: the part before the first `_` (no `_` → its whole name) |
 
 - Never list or scan the plans folder to pick a group — only this session's plans or a file the user names.
-- Plan mode assigned another name → write there while in Plan mode; once it exits, `mv` to `{group}_{topic}.md` in the same folder and fix the last line.
+- Plan mode assigned another name → write there while in Plan mode; once it exits, `mv` to `{group}_{topic}.md` in the same folder, then **Plan saved at**.
 - `.plan.md` only on request — user asks for one → write `{group}_{topic}.plan.md` then, where they say (else the repo's `.claude/plans/`).
 
 ## Using a plan
@@ -40,7 +46,20 @@ For skills that read or build an existing plan.
 
 1. **Find** — path or file name the user gave (bare name → the plans folder) → else this session's last `Plan saved at:` → else ask for the file name.
 2. **Build** (only when the calling skill builds code) — execute §7 in order, updating each frontmatter todo `status` as you go.
-3. End with `Plan saved at: /abs/path`.
+3. End with the **Plan saved at** line of the plan you read.
+
+## Plan saved at
+
+The path of the file as it is on disk **now** — never the intended name, never typed from memory.
+
+| When | Print |
+|---|---|
+| After any write / `mv` | run `ls -1 {path}`; print only a path it returned |
+| Still in Plan mode, not renamed yet | the Plan-mode path + ` → renames to {group}_{topic}.md on exit` |
+| After `mv` | rewrite the file's last line to the new path first, then print it |
+| Several plans this session | the plan this message wrote or read — not the last one mentioned |
+
+Opening a plan whose last line differs from its real path → fix the line, say so.
 
 ## Rules
 

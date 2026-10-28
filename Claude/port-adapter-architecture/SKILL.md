@@ -1,9 +1,13 @@
 ---
-name: port-adapter-architect
+name: port-adapter-architecture
 description: Clean Architecture as a portable concept — layering, the dependency rule, ports & adapters, where code belongs. Use when writing, reviewing, refactoring, or planning backend code (NestJS, Go, Elysia, or any stack), or when deciding where new code belongs or whether a dependency/import is allowed. Adapt to each repo's existing structure; apply as principles when the repo can't follow the full shape.
 ---
 
-# Port-Adapter Architect
+# Port-Adapter Architecture
+
+## Uses
+
+None — root skill.
 
 One governing rule:
 
@@ -75,7 +79,7 @@ Ask what decision the code is making:
 
 ## Function scope
 
-Layers place code between files; inside a function, follow `../clean-function/SKILL.md`. A use case's body is that skill's orchestrator for its workflow.
+Layers place code between files; how a function body is written is out of scope here. A use case's body orchestrates its workflow as named steps.
 
 ## Testing
 
@@ -101,5 +105,5 @@ Layers place code between files; inside a function, follow `../clean-function/SK
 | Port added by imitation | Check the ceremony budget first |
 | Query per mapped item / in a loop | Batch with `IN` or a join |
 | Test named after a class or exception | Actor + action + business outcome |
-| Long workflow body with `// section` comments | Extract named steps per `../clean-function/SKILL.md` |
+| Long workflow body with `// section` comments | Extract named steps |
 | Domain importing framework "just for a type" | Define the type in the domain; map at the edge |

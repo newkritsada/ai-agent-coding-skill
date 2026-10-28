@@ -5,6 +5,10 @@ description: Function-based clean code style — the orchestrating function read
 
 # Clean Function
 
+## Uses
+
+None — root skill.
+
 > **Reading only the names an orchestrator calls, top to bottom, tells you what it does.
 > Details live one level down.**
 
