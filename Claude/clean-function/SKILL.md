@@ -1,6 +1,6 @@
 ---
 name: clean-function
-description: Function-based clean code style — the orchestrating function reads like a flowchart of named steps, and every function is small, single-purpose, and has few arguments. Use whenever writing a NEW function longer than ~30 lines, a script, a seed/backfill job, or a service method. Refactor existing functions only when the user explicitly asks ("refactor", "clean this", "split into functions"). Project-agnostic; applies to any language or package.
+description: Function-based clean code style — the orchestrating function reads like a flowchart of named steps, and every function is small, single-purpose, and has few arguments. Backend only. Use whenever writing a NEW backend function longer than ~30 lines — a service / use-case method, handler, repository, script, or seed/backfill job. Refactor existing functions only when the user explicitly asks ("refactor", "clean this", "split into functions"). Not for frontend code (components, hooks, stores, pages, client-side UI logic). Project-agnostic across backend languages and frameworks.
 ---
 
 # Clean Function
@@ -12,7 +12,13 @@ None — root skill.
 > **Reading only the names an orchestrator calls, top to bottom, tells you what it does.
 > Details live one level down.**
 
-## 0. Scope — new code only
+## 0. Scope — backend, new code only
+
+- **Backend only**: services, use cases, handlers, repositories, jobs, scripts,
+  seeds/backfills, CLIs. **Skip frontend** — components, hooks, stores, pages,
+  client-side state/UI logic, even when the frontend repo shares the language;
+  follow the repo's own style there. A shared package used by both → apply only to
+  the server-side code.
 
 - **New function** → apply this skill fully.
 - **Existing function** → don't restructure it. Make the smallest change that does the

@@ -16,7 +16,7 @@ A skill loads another by name — `~/.claude/skills/<name>/SKILL.md` — so movi
 | `/clean-architecture` | Claude / build skills | composed | pick + apply code style: structure → both roots, one layer → clean-function |
 | `/commit-checkpoint` | Claude | root | checkpoint commit order, branch stack, Needs, build order |
 | `/port-adapter-architecture` | Claude | root | layers, ports & adapters, where code belongs |
-| `/clean-function` | Claude | root | function bodies as named steps |
+| `/clean-function` | Claude | root | backend function bodies as named steps (not frontend) |
 | `/grilling` | Claude | root | the interview |
 | `/to-prd` | you | root | conversation → PRD published to the issue tracker |
 | `/timesheet` | you | root | Taskfolio timesheet review / update / push |

@@ -21,6 +21,8 @@ Decide from what the change creates or touches — a plan's §3–§4, else the 
 | **Structure** — creates a handler, use case, repository, port, entity, migration, controller or module, or touches two or more layers | `/port-adapter-architecture` **and** `/clean-function` |
 | **Function** — inside one layer: logic, specs, helpers | `/clean-function` |
 
+Frontend code (components, hooks, stores, pages) → neither skill; follow the repo's style.
+
 Planning (no code yet) → only the placement skill matters: port-adapter-architecture for structure, nothing for function-only.
 
 Delegating to agents → pass the picked skill paths, not this file.
