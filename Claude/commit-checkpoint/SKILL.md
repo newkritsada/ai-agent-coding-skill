@@ -51,7 +51,7 @@ Other work, same idea (skip what doesn't apply):
 
 ## Branch stack
 
-Commits group into stacked branches: `{default} ← B1 ← B2 ← B3 …`, each branch off the one before, one MR each targeting its parent.
+Commits group into stacked branches: `{default} ← B1 ← B2 ← B3 …`, each branch off the one before, one MR each targeting its parent. **One stack per feature group** — backend and frontend branches sit in the same chain (`{default} ← B1 … ← F1 …`), never one stack per layer or repo unless the user asks. A later feature of the same group continues on top of the last branch.
 
 | Rule | Why |
 |---|---|
@@ -63,7 +63,7 @@ Commits group into stacked branches: `{default} ← B1 ← B2 ← B3 …`, each 
 
 ## Build order
 
-Derived from **Needs** across every stack (BE, FE). A wave = all branches whose Needs are in earlier waves.
+Derived from **Needs** across the stack. A wave = all branches whose Needs are in earlier waves.
 
 ```markdown
 **Build order**

@@ -35,7 +35,16 @@ Commit first, review after. Parallel wherever **Needs** allows — wait only for
 4. **Restack** — a branch's parent is built and it started below the parent → `SendMessage` its agent: `git rebase --onto {parent} {start} {branch}` → `git rebase --exec "{checks}" {parent}`. Conflict → resolve keeping both intents; can't → stop, report the files.
 5. Branch on its real parent and green → `git worktree remove`, keep the branch.
 6. Main session after each agent: §7 commit rows → `built {sha}`, branch row → `built` / `restacked`, todos → `completed`.
-7. All on their parents → **Review** + **Compact**.
+7. All on their parents → **Test branch** → **Review** + **Compact**.
+
+## Test branch
+
+With one chain per feature group (BE then FE, per `/commit-checkpoint`) the top branch already holds every commit — test on it and skip this section. Only when the user asked for separate stacks, one branch holds every commit for testing the whole feature:
+
+1. Name: `{branch prefix}-test` (e.g. `feat/REV-86_course-list-test`), cut from the top branch of the first stack.
+2. `git merge --no-ff {top of every other stack}` — message `chore: merge {top} into {feature} test branch`, body "Test branch for the whole stack. Not for merge." + repo attribution. Hooks need `.husky/_` and `node_modules` in the worktree.
+3. Check it is the union: `git diff --name-only {each top} {test}` lists only the other stacks' files.
+4. **Local only — never push it, never open an MR.** Any later fix on a stack branch → re-merge it into the test branch locally.
 
 ```
 Example — BE B1 structure, B2 domain (Needs B1), B3 use case (Needs B2); FE F1 types + API client, F2 components (Needs F1)
@@ -62,9 +71,10 @@ After a compact, the next message from the user → read `~/.claude/skills/build
 | User says | Do |
 |---|---|
 | comment on branch Bn | fix in the owning commit: worktree on the top branch → edit → `git commit --fixup {sha}` → `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash --update-refs {base}` → `git rebase --exec "{checks}" {base}` → update SHAs → **Review** |
+| "push all" / create MRs | push every branch parent-first; the **Test branch** stays local |
 | "push Bn" | parent pushed (or the default) → `git push -u origin {branch}` → `glab mr create --source-branch {branch} --target-branch {parent} --title {…} --description {…}` (description per `/pr-description` if present) → status `pushed {MR URL}` |
 | Bn merged | `git rebase --update-refs --onto origin/{default} {Bn} {top}`; GitLab retargets the next MR when the merged branch is deleted — check, else `glab mr update --target-branch` |
 
 End every stop with the **Review** table and `Plan saved at: /abs/path`.
 
-**Never:** push or open an MR without "push" · push a branch before its parent · two agents on one branch · an agent edits the plan · a commit that fails checks alone · start a branch before its `Needs` are built · rebase a pushed branch without asking.
+**Never:** push the test branch · push or open an MR without "push" · push a branch before its parent · two agents on one branch · an agent edits the plan · a commit that fails checks alone · start a branch before its `Needs` are built · rebase a pushed branch without asking.

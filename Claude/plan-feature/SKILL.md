@@ -81,7 +81,7 @@ While planning BE / FE, apply `/clean-architecture` **Pick** to §3–§4 — pl
 | B1-C1 | {message} | init folder structure | `{path}`, `{path}` | pending |
 ```
 
-One **Stack** per repo (BE, FE). `Contains` = real paths or globs. Status is filled by build-stack.
+One **Stack** per feature group, not per layer: BE and FE branches form one chain `{default} ← B1 ← … ← Bn ← F1 ← … ← Fn`, never two stacks off the default (`{default} ← BE…`, `{default} ← FE…`) unless the user asks. The next feature of the same page/story (e.g. its second tab) continues the chain on top of this one's last branch, told apart by branch name (`{prefix}_{feature}-{n}-{focus}`, n keeps counting). BE branches follow DDD order: init → domain → application → presentation → persistence (repository + migration last). `Contains` = real paths or globs. Status is filled by build-stack.
 
 ## Checkpoint
 
