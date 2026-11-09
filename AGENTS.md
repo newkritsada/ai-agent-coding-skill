@@ -23,7 +23,7 @@ Delete the folder, run the linker — it prunes the dangling link.
 Re-run after every `git pull` — a pulled skill folder is not linked automatically. The linker never overwrites a real (non-link) folder in `~/.claude/skills`.
 
 ## Local-only skills
-`Claude/pr-description/` is git-ignored but still linked like the others.
+`Claude/pr-description/` and `Claude/timesheet/` are git-ignored but still linked like the others.
 
 ## Other folders
 `Claude/docs/` — `skills.md` (list + dependency tree), `plan-build-flow.md` (walkthrough); no `SKILL.md`, so the linker skips it.
