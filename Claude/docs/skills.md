@@ -20,6 +20,7 @@ A skill loads another by name — `~/.claude/skills/<name>/SKILL.md` — so movi
 | `/grilling` | Claude | root | the interview |
 | `/to-prd` | you | root | conversation → PRD published to the issue tracker |
 | `/timesheet` | you | root | Taskfolio timesheet review / update / push |
+| `/retro` | you | root | session retrospective → fixes to skills, CLAUDE.md, memory |
 | `/graphify` | you | root (upstream copy) | folder → knowledge graph |
 | `/pr-description` | you | local only, git-ignored | MR description from the diff — currently missing |
 
@@ -61,7 +62,7 @@ Root = uses no other skill. Composed = binds others; see its **Uses**.
 /to-prd                              conversation → PRD in the issue tracker
 └── /setup-matt-pocock-skills        tracker + labels setup, only if missing (external)
 
-roots (use nothing): /commit-checkpoint · /port-adapter-architecture · /clean-function · /grilling · /timesheet · /graphify
+roots (use nothing): /commit-checkpoint · /port-adapter-architecture · /clean-function · /grilling · /timesheet · /retro · /graphify
 ```
 
 Flow walkthrough: [plan-build-flow.md](plan-build-flow.md).
