@@ -55,9 +55,10 @@ Commits group into stacked branches: `{default} ← B1 ← B2 ← B3 …`, each 
 
 | Rule | Why |
 |---|---|
-| One branch = one review focus, **at most 4 branches per feature**: **backend core** (structure + business rules + use cases and their ports, checkpoints 1–3) · **backend adapters** (API wiring + persistence + migration + integration tests, 4–11) · **frontend data + components** · **frontend page**. Commits inside keep checkpoint order. | One layer per MR turns one feature into many MRs: each review fix crosses several of them, and every fold rewrites the whole stack. |
+| One branch = one review focus, **always these 5 branches per feature** (3 and 4 stay separate even when the backend is merged): **1 backend core** (structure + business rules + use cases and their ports, checkpoints 1–3) · **2 backend adapters** (API wiring + persistence + migration + integration tests, 4–11) · **3 frontend, not on the API yet** (pages, routing, components; default state when the API fails or returns nothing) · **4 integrate frontend with backend** (API client, hooks, query keys, page reads the hooks, page tests with a faked backend) · **5 test branch, local only**. Commits inside keep checkpoint order. | One layer per MR turns one feature into many MRs: each review fix crosses several of them, and every fold rewrites the whole stack. |
+| Frontend split: 3 uses the real response types (shared contract or branch 2), components take data as props, no fake data in its code (samples go in 5). 4 only adds hooks and wires the page; it does not change components. | If 4 rewrites components, 3 was split wrong and the UI gets reviewed twice. 3 merged alone shows an always-empty page — never let it reach a release branch alone. |
 | Target ≤ 50 files per branch; split a focus over two branches if bigger. A single checkpoint that must exceed it may. | Readable in one sitting. |
-| Small foci (< 5 files) merge into the next branch. | No trivial MRs. |
+| Small foci (< 5 files) merge into the next branch — except the 5 feature branches above, which always stay. | No trivial MRs. |
 | Branch name = repo convention + `-{n}-{focus}`. | The stack sorts and reads in order. |
 | **Needs** = the earlier branches whose code this one compiles against — not just the one before it. Keep it minimal: a contract from the plan (types, API shape) can be written in the branch itself. | Branches with no unbuilt Needs build in parallel and restack onto their parent after. |
 

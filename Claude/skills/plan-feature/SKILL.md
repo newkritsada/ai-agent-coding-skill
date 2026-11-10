@@ -81,7 +81,7 @@ While planning BE / FE, apply `/clean-architecture` **Pick** to §3–§4 — pl
 | B1-C1 | {message} | init folder structure | `{path}`, `{path}` | pending |
 ```
 
-One **Stack** per feature group, not per layer: BE and FE branches form one chain `{default} ← B1 ← … ← Bn ← F1 ← … ← Fn`, never two stacks off the default (`{default} ← BE…`, `{default} ← FE…`) unless the user asks. The next feature of the same page/story (e.g. its second tab) continues the chain on top of this one's last branch, told apart by branch name (`{prefix}_{feature}-{n}-{focus}`, n keeps counting). At most 4 branches per feature, per `/commit-checkpoint`: BE core, BE adapters, FE data + components, FE page; commits inside keep DDD order (repository + migration last). `Contains` = real paths or globs. Status is filled by build-stack.
+One **Stack** per feature group, not per layer: BE and FE branches form one chain `{default} ← B1 ← … ← Bn ← F1 ← … ← Fn`, never two stacks off the default (`{default} ← BE…`, `{default} ← FE…`) unless the user asks. The next feature of the same page/story (e.g. its second tab) continues the chain on top of this one's last branch, told apart by branch name (`{prefix}_{feature}-{n}-{focus}`, n keeps counting). Always 5 branches per feature, per `/commit-checkpoint`: BE core, BE adapters, FE not on the API yet (default state), FE ↔ API integrate, local-only test branch (never pushed, no MR) — 3 and 4 stay separate even when the backend is merged; commits inside keep DDD order (repository + migration last). `Contains` = real paths or globs. Status is filled by build-stack.
 
 ## Checkpoint
 

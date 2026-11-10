@@ -6,7 +6,7 @@ Project-only facts stay in that project's own memory or `AGENTS.md`. Rules a ski
 
 | File | Covers |
 |---|---|
-| [mr-stacking.md](mr-stacking.md) | One chain per feature, at most 4 MRs per feature, CI, review-time rules, shared libraries |
+| [mr-stacking.md](mr-stacking.md) | One chain per feature, 4 MRs + local test branch per feature, frontend split (no-API UI → integrate), CI, review-time rules, shared libraries |
 | [agent-orchestration.md](agent-orchestration.md) | Main session vs sub-agent, how many at once, which model, briefs, checks, workspace |
 
 ## How to load
