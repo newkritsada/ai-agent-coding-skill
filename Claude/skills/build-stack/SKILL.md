@@ -41,7 +41,7 @@ Commit first, review after. Parallel wherever **Needs** allows — wait only for
 
 With one chain per feature group (BE then FE, per `/commit-checkpoint`) the top branch already holds every commit — test on it and skip this section. Only when the user asked for separate stacks, one branch holds every commit for testing the whole feature:
 
-1. Name: `{branch prefix}-test` (e.g. `feat/REV-86_course-list-test`), cut from the top branch of the first stack.
+1. Name: `{branch prefix}-test` (e.g. `feat/ABC-12_order-list-test`), cut from the top branch of the first stack.
 2. `git merge --no-ff {top of every other stack}` — message `chore: merge {top} into {feature} test branch`, body "Test branch for the whole stack. Not for merge." + repo attribution. Hooks need `.husky/_` and `node_modules` in the worktree.
 3. Check it is the union: `git diff --name-only {each top} {test}` lists only the other stacks' files.
 4. **Local only — never push it, never open an MR.** Any later fix on a stack branch → re-merge it into the test branch locally.

@@ -72,16 +72,16 @@ While planning BE / FE, apply `/clean-architecture` **Pick** to §3–§4 — pl
 ### Stack · {repo} · base `{default branch}`
 | # | Branch | Parent | Needs | Review focus | Files | Status |
 |---|---|---|---|---|---|---|
-| B1 | `{branch}-1-structure` | `{default}` | — | structure | ~{n} | pending |
-| B2 | `{branch}-2-domain` | B1 | B1 | business rules | ~{n} | pending |
+| B1 | `{branch}-1-core` | `{default}` | — | backend core | ~{n} | pending |
+| B2 | `{branch}-2-adapters` | B1 | B1 | backend adapters | ~{n} | pending |
 
-#### B1 — structure
+#### B1 — backend core
 | # | Commit message | Checkpoint | Contains | Status |
 |---|---|---|---|---|
 | B1-C1 | {message} | init folder structure | `{path}`, `{path}` | pending |
 ```
 
-One **Stack** per feature group, not per layer: BE and FE branches form one chain `{default} ← B1 ← … ← Bn ← F1 ← … ← Fn`, never two stacks off the default (`{default} ← BE…`, `{default} ← FE…`) unless the user asks. The next feature of the same page/story (e.g. its second tab) continues the chain on top of this one's last branch, told apart by branch name (`{prefix}_{feature}-{n}-{focus}`, n keeps counting). BE branches follow DDD order: init → domain → application → presentation → persistence (repository + migration last). `Contains` = real paths or globs. Status is filled by build-stack.
+One **Stack** per feature group, not per layer: BE and FE branches form one chain `{default} ← B1 ← … ← Bn ← F1 ← … ← Fn`, never two stacks off the default (`{default} ← BE…`, `{default} ← FE…`) unless the user asks. The next feature of the same page/story (e.g. its second tab) continues the chain on top of this one's last branch, told apart by branch name (`{prefix}_{feature}-{n}-{focus}`, n keeps counting). At most 4 branches per feature, per `/commit-checkpoint`: BE core, BE adapters, FE data + components, FE page; commits inside keep DDD order (repository + migration last). `Contains` = real paths or globs. Status is filled by build-stack.
 
 ## Checkpoint
 

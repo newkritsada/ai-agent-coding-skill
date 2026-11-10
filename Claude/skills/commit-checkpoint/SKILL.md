@@ -55,7 +55,7 @@ Commits group into stacked branches: `{default} ← B1 ← B2 ← B3 …`, each 
 
 | Rule | Why |
 |---|---|
-| One branch = one review focus. New module: **structure** (1) · **business rules** (2) · **use cases** (3) · **wiring / API** (4–9) · **persistence** (10–11). | The reviewer checks one kind of thing per MR. |
+| One branch = one review focus, **at most 4 branches per feature**: **backend core** (structure + business rules + use cases and their ports, checkpoints 1–3) · **backend adapters** (API wiring + persistence + migration + integration tests, 4–11) · **frontend data + components** · **frontend page**. Commits inside keep checkpoint order. | One layer per MR turns one feature into many MRs: each review fix crosses several of them, and every fold rewrites the whole stack. |
 | Target ≤ 50 files per branch; split a focus over two branches if bigger. A single checkpoint that must exceed it may. | Readable in one sitting. |
 | Small foci (< 5 files) merge into the next branch. | No trivial MRs. |
 | Branch name = repo convention + `-{n}-{focus}`. | The stack sorts and reads in order. |
