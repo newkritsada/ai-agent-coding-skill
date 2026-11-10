@@ -1,6 +1,6 @@
 # Skills
 
-Every skill in `Claude/`, what it does, and what it uses. Each `SKILL.md` starts with the same **Uses** list.
+Every skill in `Claude/skills/`, what it does, and what it uses. Each `SKILL.md` starts with the same **Uses** list.
 A skill loads another by name — `~/.claude/skills/<name>/SKILL.md` — so moving a source folder only needs the linker re-run.
 
 ## List

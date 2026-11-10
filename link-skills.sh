@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# link-skills.sh -- one symlink per skill: ./Claude/<name> -> ~/.claude/skills/<name>
+# link-skills.sh -- one symlink per skill: ./Claude/skills/<name> -> ~/.claude/skills/<name>
 # Re-run after creating or deleting a skill, and after `git pull` brings new ones.
 #   ./link-skills.sh            # link new, refresh existing, prune links to deleted skills
 #   ./link-skills.sh --dry-run  # show only
 set -euo pipefail
 
-SOURCE="$(cd "$(dirname "${BASH_SOURCE[0]}")/Claude" && pwd -P)"
+SOURCE="$(cd "$(dirname "${BASH_SOURCE[0]}")/Claude/skills" && pwd -P)"
 TARGET="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
 DRY=0; [[ "${1:-}" == "--dry-run" || "${1:-}" == "-n" ]] && DRY=1
 run() { if (( DRY )); then echo "    $*"; else "$@"; fi; }
@@ -15,7 +15,7 @@ FRESH=0
 if [[ -L "$TARGET" ]]; then echo "replace dir link: $TARGET"; run rm "$TARGET"; FRESH=$DRY; fi
 run mkdir -p "$TARGET"
 
-# link every Claude/<name>/SKILL.md
+# link every Claude/skills/<name>/SKILL.md
 for dir in "$SOURCE"/*/; do
   [[ -f "$dir/SKILL.md" ]] || continue
   name="$(basename "$dir")"; dest="$TARGET/$name"

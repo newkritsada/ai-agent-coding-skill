@@ -1,0 +1,24 @@
+# Memory
+
+Working rules learned on real projects, written so any AI coding assistant can load them
+without being taught again. Project-neutral: no repo names, ticket keys or stack names.
+Project-only facts stay in that project's own memory or `AGENTS.md`. Rules a skill already covers live in the skill, not here.
+
+| File | Covers |
+|---|---|
+| [mr-stacking.md](mr-stacking.md) | One chain per feature, at most 4 MRs per feature, CI, review-time rules, shared libraries |
+| [agent-orchestration.md](agent-orchestration.md) | Main session vs sub-agent, how many at once, which model, briefs, checks, workspace |
+
+## How to load
+
+- **Claude Code**: add one line to a project's `CLAUDE.md` or `~/.claude/CLAUDE.md`:
+  `Working rules: read ~/Desktop/Skills/Claude/memory/README.md and the files it lists.`
+- **Codex / Cursor / other tools**: point the tool's `AGENTS.md` (or rules file) at the same
+  paths, or paste the files' rules into it.
+
+A project's own `AGENTS.md` / `CLAUDE.md` wins where it disagrees: these are defaults.
+
+## Adding a topic
+
+One file per topic. Each rule is short and keeps a one-line *Why* when the reason isn't
+obvious. Update the table above in the same change.

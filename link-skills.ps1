@@ -1,4 +1,4 @@
-# link-skills.ps1 -- one junction per skill: .\Claude\<name> -> %USERPROFILE%\.claude\skills\<name>
+# link-skills.ps1 -- one junction per skill: .\Claude\skills\<name> -> %USERPROFILE%\.claude\skills\<name>
 # Junctions need no admin rights or Developer Mode.
 # Re-run after creating or deleting a skill, and after `git pull` brings new ones.
 #   powershell -ExecutionPolicy Bypass -File .\link-skills.ps1           # link, refresh, prune
@@ -6,7 +6,7 @@
 param([switch]$DryRun)
 $ErrorActionPreference = 'Stop'
 
-$Source = (Resolve-Path (Join-Path $PSScriptRoot 'Claude')).Path
+$Source = (Resolve-Path (Join-Path $PSScriptRoot 'Claude\skills')).Path
 $Target = if ($env:CLAUDE_SKILLS_DIR) { $env:CLAUDE_SKILLS_DIR } else { Join-Path $HOME '.claude\skills' }
 
 function Do-It([string]$Msg, [scriptblock]$Act) { Write-Host $Msg; if (-not $DryRun) { & $Act } }
@@ -16,7 +16,7 @@ $t = Get-Item $Target -ErrorAction SilentlyContinue
 if ($t -and $t.LinkType) { Do-It "replace dir link: $Target" { $t.Delete() } }
 if (-not (Test-Path $Target)) { Do-It "mkdir: $Target" { New-Item -ItemType Directory -Path $Target | Out-Null } }
 
-# link every Claude\<name>\SKILL.md
+# link every Claude\skills\<name>\SKILL.md
 Get-ChildItem $Source -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') } | ForEach-Object {
   $name = $_.Name; $src = $_.FullName; $dest = Join-Path $Target $name
   $existing = Get-Item $dest -ErrorAction SilentlyContinue
