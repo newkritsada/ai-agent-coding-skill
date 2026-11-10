@@ -27,5 +27,4 @@ Re-run after every `git pull` — a pulled skill folder is not linked automatica
 
 ## Other folders
 `Claude/docs/` — `skills.md` (list + dependency tree), `plan-build-flow.md` (walkthrough); not linked (the linker reads only `Claude/skills/`).
-`docs/` — reference material, not linked.
 `Claude/memory/` — project-neutral working rules no skill covers (MR stacking, agent orchestration) that any AI tool can load; not linked. See `Claude/memory/README.md`.
