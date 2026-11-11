@@ -8,6 +8,7 @@ Project-only facts stay in that project's own memory or `AGENTS.md`. Rules a ski
 |---|---|
 | [mr-stacking.md](mr-stacking.md) | One chain per feature, 4 MRs + local test branch per feature, frontend split (no-API UI → integrate), CI, review-time rules, shared libraries |
 | [agent-orchestration.md](agent-orchestration.md) | Main session vs sub-agent, how many at once, which model, briefs, checks, workspace |
+| [frontend-components.md](frontend-components.md) | Component size and split, the main component as an outline of section components, no inner components or layout render props, page owns layout and footer, shared state in a provider, one grid for aligned fields |
 
 ## How to load
 
