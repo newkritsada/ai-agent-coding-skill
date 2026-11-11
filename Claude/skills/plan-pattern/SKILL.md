@@ -13,6 +13,14 @@ Load a skill by name: read `~/.claude/skills/<name>/SKILL.md`.
 
 Plan **file structure only**. Stack rules live in the repo's `AGENTS.md` / `CLAUDE.md`.
 
+## Design input first
+
+Plan mode prompts for MCP tools (Figma) even when settings allow them. So read design input **before** entering Plan mode:
+
+- Collect every Figma frame/node the plan needs and read them all in auto mode: screenshots, text nodes, node info. Note the facts (copy, variants, hidden states, node ids) for §2 **Current**.
+- Then enter Plan mode. Grilling and filling use those notes; no Figma calls while planning.
+- Already in Plan mode and a Figma read is missing → one line asking the user to leave Plan mode (Shift+Tab) for the reads, then batch them all in one go. Never spread Figma calls across the interview.
+
 ## Workflow — always, no exceptions
 
 1. **Write** the plan file per **File location**. Start with §1 Requirement (user's needs, short list), §2 Understanding with only **Current** filled from codebase exploration, §8 empty.

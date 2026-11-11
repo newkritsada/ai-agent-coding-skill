@@ -53,6 +53,7 @@ While planning BE / FE, apply `/clean-architecture` **Pick** to §3–§4 — pl
 
 ## Diagram stage (BE, FE)
 
+0. **Figma first, outside plan mode.** Read every Figma frame this stage needs (screenshots, text, node info) per plan-pattern's **Design input first**, then `EnterPlanMode`.
 1. In plan mode, run the base's **Plan** mode. BE: FE only as far as the API must expose. FE: read the BE plan first, cite its endpoints / contracts in §2 **Constraints**, never re-plan BE.
 2. `ExitPlanMode` → the base's **Build** mode (render the Artifact) → **Checkpoint**.
 3. Feedback → edit plan → render again (same URL) → **Checkpoint**. Until the user says "approve".
@@ -103,4 +104,4 @@ After "approve":
    ```
    Suggest: /compact Keep for plan-feature: topic {topic}; next stage {FE | Summary | build}; plans {abs path per approved plan}; artifacts {URLs}. Drop diagram JSON, grilling and review chatter.
    ```
-2. `EnterPlanMode`, then wait. "next" → next stage. After the summary: wait for `/build-stack {summary path}`.
+2. Wait — do not enter plan mode yet. "next" → the next stage's step 0 (Figma reads), then `EnterPlanMode` → next stage. After the summary: wait for `/build-stack {summary path}`.
